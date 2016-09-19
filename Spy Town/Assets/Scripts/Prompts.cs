@@ -30,11 +30,10 @@ public class Prompts : MonoBehaviour
 	// event on start of a new phase
 	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
 	{
-		if (_phase == GameManager.RoundPhase.MIDTURN)
-		{
-			// turn off player "done" button
-			turnDoneButton.gameObject.SetActive(false);
+		TurnOffAllPrompts();
 
+		if (_phase == GameManager.RoundPhase.MIDTURN || _phase == GameManager.RoundPhase.START)
+		{
 			// turn on player start prompt
 			playerPromptMessage.gameObject.SetActive(true);
 			playerAcceptButton.gameObject.SetActive(true);
@@ -54,5 +53,12 @@ public class Prompts : MonoBehaviour
 		{
 			turnDoneButton.gameObject.SetActive(true);
 		}
+	}
+
+	void TurnOffAllPrompts()
+	{
+		turnDoneButton.gameObject.SetActive(false);
+		playerPromptMessage.gameObject.SetActive(false);
+		playerAcceptButton.gameObject.SetActive(false);
 	}
 }

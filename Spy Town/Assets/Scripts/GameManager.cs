@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
 	// delegates
 	public delegate void OnPhaseStartEvent(RoundPhase _phase, Team _team);
 	public event OnPhaseStartEvent OnPhaseStart;
+	public delegate void OnEntityHasMovedEvent(GraphNode _graphNode);
+	public event OnEntityHasMovedEvent OnEntityHasMoved;
 	// singleton
 	private static GameManager instance;
     // instance
@@ -60,13 +62,18 @@ public class GameManager : MonoBehaviour
 		else if (currentPhase == RoundPhase.MIDTURN)	// if MIDTURN, go to next player turn
 		{
 			currentPhase = RoundPhase.PLAYERTURN;
-			currentPlayerTurn = (currentPlayerTurn == Team.PRIMARY ? Team.SECONDARY : Team.PRIMARY);
 		}
 		else if (currentPhase == RoundPhase.PLAYERTURN)
 		{
 			currentPhase = RoundPhase.MIDTURN;
+			currentPlayerTurn = (currentPlayerTurn == Team.PRIMARY ? Team.SECONDARY : Team.PRIMARY);
 		}
 
 		OnPhaseStart(currentPhase, currentPlayerTurn);
+	}
+
+	public void ReportEntityHasMoved(GraphNode _n)
+	{
+		OnEntityHasMoved(_n);
 	}
 }

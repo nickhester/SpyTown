@@ -11,13 +11,18 @@ public class Entity : MonoBehaviour
 	private List<GameObject> currentPushAwayObjects = new List<GameObject>();
 	public float pushAwaySpeed = 1.0f;
 
+	protected void Awake()
+	{
+		GameManager.Instance.OnEntityHasMoved += OnEntityHasMoved;
+	}
+
 	void Start ()
 	{
 		gameManager = GameObject.FindObjectOfType<GameManager>();
 		FindPushAwayTargets();
 	}
 	
-	void Update ()
+	protected void Update ()
 	{
 		ContinuousPushAway();
 	}
@@ -59,5 +64,23 @@ public class Entity : MonoBehaviour
 	{
 		GetComponent<Collider>().enabled = _activate;
 		GetComponent<Renderer>().enabled = _activate;
+	}
+
+	protected void ResetPosition()
+	{
+		transform.position = currentNode.transform.position;
+		FindPushAwayTargets();
+	}
+
+	public void Move(GraphNode _newNode)
+	{
+		currentNode = _newNode;
+		ResetPosition();
+		gameManager.ReportEntityHasMoved(_newNode);
+	}
+
+	private void OnEntityHasMoved(GraphNode _graphNode)
+	{
+		FindPushAwayTargets();
 	}
 }
