@@ -7,6 +7,8 @@ public class Prompts : MonoBehaviour
 	public Text playerPromptMessage;
 	public Button playerAcceptButton;
 	public Button turnDoneButton;
+	public GameObject PlayerTurnSet;
+	public GameObject MidturnSet;
 
 	public string playerPrimaryStartMessage;
 	public string playerSecondaryStartMessage;
@@ -34,9 +36,7 @@ public class Prompts : MonoBehaviour
 
 		if (_phase == GameManager.RoundPhase.MIDTURN || _phase == GameManager.RoundPhase.START)
 		{
-			// turn on player start prompt
-			playerPromptMessage.gameObject.SetActive(true);
-			playerAcceptButton.gameObject.SetActive(true);
+			MidturnSet.SetActive(true);
 
 			if (_team == GameManager.Team.PRIMARY)
 			{
@@ -51,14 +51,13 @@ public class Prompts : MonoBehaviour
 		}
 		else
 		{
-			turnDoneButton.gameObject.SetActive(true);
+			PlayerTurnSet.SetActive(true);
 		}
 	}
 
 	void TurnOffAllPrompts()
 	{
-		turnDoneButton.gameObject.SetActive(false);
-		playerPromptMessage.gameObject.SetActive(false);
-		playerAcceptButton.gameObject.SetActive(false);
+		PlayerTurnSet.SetActive(false);
+		MidturnSet.SetActive(false);
 	}
 }

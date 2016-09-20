@@ -48,8 +48,8 @@ public class Spy : Entity
 				isBeingMoved = false;
 				gameObject.GetComponent<Collider>().enabled = true;
 
-				// TODO: move spy if possible, or return to origin
-				if (hoveredGraphNode != null && myEmbassy.RequestSpyMovement(this, hoveredGraphNode))
+				// move spy if possible, otherwise return to origin
+				if (hoveredGraphNode != null && hoveredGraphNode != currentNode && myEmbassy.RequestSpyMovement(this, hoveredGraphNode))
 				{
 					myEmbassy.OnActionSpent();
 					Move(hoveredGraphNode);
