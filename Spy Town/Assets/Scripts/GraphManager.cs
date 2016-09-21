@@ -10,9 +10,12 @@ public class GraphManager : MonoBehaviour
 	{
 		nodes.AddRange(GameObject.FindObjectsOfType<GraphNode>());
 	}
-	
-	void Update ()
+
+	public void RevealAll(bool b)
 	{
-		
+		for (int i = 0; i < nodes.Count; i++)
+		{
+			nodes[i].Reveal(false);
+		}
 	}
 }

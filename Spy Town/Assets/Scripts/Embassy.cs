@@ -15,6 +15,7 @@ public class Embassy : MonoBehaviour
 	void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
+		GameManager.Instance.OnActionTaken += OnActionTaken;
 	}
 
 	void Start ()
@@ -60,8 +61,13 @@ public class Embassy : MonoBehaviour
 		return true;
 	}
 
-	public void OnActionSpent()
+	public void OnActionTaken()
 	{
 		numActionsRemaining--;
+	}
+
+	public int GetNumActionsRemaining()
+	{
+		return numActionsRemaining;
 	}
 }

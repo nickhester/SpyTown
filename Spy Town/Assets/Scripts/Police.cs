@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Police : Entity
 {
@@ -11,6 +12,8 @@ public class Police : Entity
 
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
 		InputEvent.Instance.OnObjectClicked += OnObjectClicked;
+		GameManager.Instance.OnNodesNeedRevealed += OnNodesNeedRevealed;
+		GameManager.Instance.OnEntitiesNeedRevealed += OnEntitiesNeedRevealed;
 	}
 
 	public void InitializePolice(GraphNode _startingNode, PoliceManager _policeManager)
@@ -32,5 +35,21 @@ public class Police : Entity
 		{
 			// when I get clicked...
 		}
+	}
+
+	void OnNodesNeedRevealed()
+	{
+		// reveal this node, and all nodes connected
+		currentNode.Reveal(true);
+		List<GraphNode> connectedNodes = currentNode.GetConnectedNodes();
+		for (int i = 0; i < connectedNodes.Count; i++)
+		{
+			connectedNodes[i].Reveal(true);
+		}
+	}
+
+	void OnEntitiesNeedRevealed()
+	{
+
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Spy : Entity
 {
@@ -14,6 +15,8 @@ public class Spy : Entity
 
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
 		InputEvent.Instance.OnObjectClicked += OnObjectClicked;
+		GameManager.Instance.OnNodesNeedRevealed += OnNodesNeedRevealed;
+		GameManager.Instance.OnEntitiesNeedRevealed += OnEntitiesNeedRevealed;
 	}
 
 	void Update()
@@ -51,7 +54,7 @@ public class Spy : Entity
 				// move spy if possible, otherwise return to origin
 				if (hoveredGraphNode != null && hoveredGraphNode != currentNode && myEmbassy.RequestSpyMovement(this, hoveredGraphNode))
 				{
-					myEmbassy.OnActionSpent();
+					gameManager.ReportActionTaken();
 					Move(hoveredGraphNode);
 				}
 				else
@@ -94,6 +97,28 @@ public class Spy : Entity
 				isBeingMoved = true;
 				gameObject.GetComponent<Collider>().enabled = false;
 			}
+		}
+	}
+
+	bool GetIsMyTurn()
+	{
+		return gameManager.currentPlayerTurn == myTeam;
+	}
+
+	void OnNodesNeedRevealed()
+	{
+		if (gameManager.currentPhase == GameManager.RoundPhase.PLAYERTURN && GetIsMyTurn())
+		{
+			// reveal this node, and all nodes connected
+			currentNode.Reveal(true);
+		}
+	}
+
+	void OnEntitiesNeedRevealed()
+	{
+		if (gameManager.currentPhase != GameManager.RoundPhase.PLAYERTURN || !GetIsMyTurn())
+		{
+			RevealEntity(currentNode.GetIsRevealed());
 		}
 	}
 }

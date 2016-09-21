@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Entity : MonoBehaviour
+public abstract class Entity : MonoBehaviour
 {
 	protected GameManager gameManager;
 	protected GraphNode currentNode;
@@ -63,7 +63,12 @@ public class Entity : MonoBehaviour
 	protected void ActivateEntity(bool _activate)
 	{
 		GetComponent<Collider>().enabled = _activate;
-		GetComponent<Renderer>().enabled = _activate;
+		RevealEntity(_activate);
+	}
+
+	protected void RevealEntity(bool b)
+	{
+		GetComponent<Renderer>().enabled = b;
 	}
 
 	protected void ResetPosition()
@@ -79,7 +84,7 @@ public class Entity : MonoBehaviour
 		gameManager.ReportEntityHasMoved(_newNode);
 	}
 
-	private void OnEntityHasMoved(GraphNode _graphNode)
+	virtual protected void OnEntityHasMoved(GraphNode _graphNode)
 	{
 		FindPushAwayTargets();
 	}

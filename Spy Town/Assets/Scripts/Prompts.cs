@@ -4,11 +4,14 @@ using UnityEngine.UI;
 
 public class Prompts : MonoBehaviour
 {
+	public GameManager gameManager;
+
 	public Text playerPromptMessage;
 	public Button playerAcceptButton;
 	public Button turnDoneButton;
 	public GameObject PlayerTurnSet;
 	public GameObject MidturnSet;
+	public Text actionsLeft;
 
 	public string playerPrimaryStartMessage;
 	public string playerSecondaryStartMessage;
@@ -17,22 +20,19 @@ public class Prompts : MonoBehaviour
 	void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
+		GameManager.Instance.OnActionTaken += OnActionTaken;
 	}
 
-	void Start ()
+	void Start()
 	{
-		
-	}
-	
-	void Update ()
-	{
-	
+		gameManager = GameObject.FindObjectOfType<GameManager>();
 	}
 
 	// event on start of a new phase
 	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
 	{
 		TurnOffAllPrompts();
+		UpdateActionsLeft();
 
 		if (_phase == GameManager.RoundPhase.MIDTURN || _phase == GameManager.RoundPhase.START)
 		{
@@ -52,6 +52,20 @@ public class Prompts : MonoBehaviour
 		else
 		{
 			PlayerTurnSet.SetActive(true);
+		}
+	}
+
+	void OnActionTaken()
+	{
+		UpdateActionsLeft();
+	}
+
+	void UpdateActionsLeft()
+	{
+		Embassy e = gameManager.GetActiveEmbassy();
+		if (e != null)
+		{
+			actionsLeft.text = "Actions Left: " + e.GetNumActionsRemaining();
 		}
 	}
 
