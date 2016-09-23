@@ -17,11 +17,14 @@ public class Prompts : MonoBehaviour
 	public string playerSecondaryStartMessage;
 	public string playerStartButtonMessage;
 
+    private GameManager.Team nextTeamUp;
+
 	void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
 		GameManager.Instance.OnActionTaken += OnActionTaken;
-	}
+        PoliceManager.Instance.OnPoliceMovementComplete += OnPoliceMovementComplete;
+    }
 
 	void Start()
 	{
@@ -34,21 +37,17 @@ public class Prompts : MonoBehaviour
 		TurnOffAllPrompts();
 		UpdateActionsLeft();
 
-		if (_phase == GameManager.RoundPhase.MIDTURN || _phase == GameManager.RoundPhase.START)
-		{
-			MidturnSet.SetActive(true);
+        nextTeamUp = _team;
 
-			if (_team == GameManager.Team.PRIMARY)
-			{
-				playerPromptMessage.text = playerPrimaryStartMessage;
-				playerAcceptButton.GetComponentInChildren<Text>().text = playerStartButtonMessage;
-			}
-			else
-			{
-				playerPromptMessage.text = playerSecondaryStartMessage;
-				playerAcceptButton.GetComponentInChildren<Text>().text = playerStartButtonMessage;
-			}
-		}
+
+        if (_phase == GameManager.RoundPhase.START)
+		{
+            ShowPlayerStartUI();
+        }
+        else if (_phase == GameManager.RoundPhase.MIDTURN)
+        {
+            // don't do anything till police report completion
+        }
 		else
 		{
 			PlayerTurnSet.SetActive(true);
@@ -74,4 +73,25 @@ public class Prompts : MonoBehaviour
 		PlayerTurnSet.SetActive(false);
 		MidturnSet.SetActive(false);
 	}
+
+    void OnPoliceMovementComplete()
+    {
+        ShowPlayerStartUI();
+    }
+
+    void ShowPlayerStartUI()
+    {
+        MidturnSet.SetActive(true);
+
+        if (nextTeamUp == GameManager.Team.PRIMARY)
+        {
+            playerPromptMessage.text = playerPrimaryStartMessage;
+            playerAcceptButton.GetComponentInChildren<Text>().text = playerStartButtonMessage;
+        }
+        else
+        {
+            playerPromptMessage.text = playerSecondaryStartMessage;
+            playerAcceptButton.GetComponentInChildren<Text>().text = playerStartButtonMessage;
+        }
+    }
 }

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class Police : Entity
 {
 	PoliceManager policeManager;
-
-	void Awake()
+    
+    void Awake()
 	{
 		base.Awake();
 
@@ -23,10 +23,22 @@ public class Police : Entity
 		transform.position = currentNode.transform.position;
 	}
 
-	public void MoveToNewNode(GraphNode _node)
+	public IEnumerator MoveToNewNode(GraphNode _node, float _afterDelay, float _moveTime)
 	{
+        yield return new WaitForSeconds(_afterDelay);
+
+        float lerpProgress = 0.0f;
+		while (lerpProgress < 1.0f)
+		{
+            lerpProgress += Time.deltaTime * (1.0f / _moveTime);
+            transform.position = Vector3.Lerp(currentNode.transform.position, _node.transform.position, lerpProgress);
+			yield return null;
+		}
+		
 		Move(_node);
-	}
+        policeManager.PoliceReportMovementComplete();
+
+    }
 
 	// event on start of a new phase
 	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)

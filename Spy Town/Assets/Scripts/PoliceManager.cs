@@ -8,7 +8,32 @@ public class PoliceManager : MonoBehaviour
 	public List<GraphNode> startingBuildings = new List<GraphNode>();
 	private List<Police> allPolice = new List<Police>();
 
-	protected void Awake()
+    [SerializeField]
+    private float timeBeforePoliceMove;
+    [SerializeField]
+    private float movementDuration;
+    
+    // delegates
+    public delegate void OnPoliceMovementCompleteEvent();
+    public event OnPoliceMovementCompleteEvent OnPoliceMovementComplete;
+    // singleton
+    private static PoliceManager instance;
+    // instance
+    public static PoliceManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = GameObject.FindObjectOfType(typeof(PoliceManager)) as PoliceManager;
+            }
+            return instance;
+        }
+    }
+
+    private int numPoliceWaitingToComplete = 0;
+
+    protected void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
 	}
@@ -60,15 +85,18 @@ public class PoliceManager : MonoBehaviour
 
 	void TakePoliceTurn()
 	{
+		List<GraphNode> chosenDestinations = new List<GraphNode>();
 		for (int i = 0; i < allPolice.Count; i++)
 		{
-			List<GraphNode> _connectedNodes = allPolice[i].currentNode.GetConnectedNodes();
-
+            List<GraphNode> _connectedNodes = new List<GraphNode>();
+            _connectedNodes.AddRange(allPolice[i].currentNode.GetConnectedNodes());
+            
+            // remove invalid possibile destinations
 			for (int j = 0; j < _connectedNodes.Count; j++)
 			{
-				// if it's an embassy, or it's a non-neutral building, remove it as a possibility
-				if (_connectedNodes[j].GetComponent<Embassy>() != null
-					|| _connectedNodes[j].GetComponent<Building>().teamAssociation != GameManager.Team.NEUTRAL)
+				if (_connectedNodes[j].GetComponent<Embassy>() != null												// if it's an embassy
+					|| _connectedNodes[j].GetComponent<Building>().teamAssociation != GameManager.Team.NEUTRAL		// if it's not a neutral building
+					|| chosenDestinations.Contains(_connectedNodes[j])) 				            				// if it's already been chosen as another police's destination
 				{
 					_connectedNodes.RemoveAt(j);
 					j--;
@@ -78,8 +106,20 @@ public class PoliceManager : MonoBehaviour
 			if (_connectedNodes.Count > 0)
 			{
 				GraphNode newNode = _connectedNodes[Random.Range(0, _connectedNodes.Count)];
-				allPolice[i].MoveToNewNode(newNode);
+				StartCoroutine(allPolice[i].MoveToNewNode(newNode, timeBeforePoliceMove, movementDuration));
+                numPoliceWaitingToComplete++;
+                chosenDestinations.Add(newNode);
 			}
 		}
 	}
+
+    public void PoliceReportMovementComplete()
+    {
+        numPoliceWaitingToComplete--;
+
+        if (numPoliceWaitingToComplete <= 0)
+        {
+            OnPoliceMovementComplete();
+        }
+    }
 }
