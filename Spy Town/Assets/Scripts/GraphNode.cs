@@ -5,7 +5,8 @@ using System.Collections.Generic;
 public class GraphNode : MonoBehaviour
 {
 	private GameManager gameManager;
-	public List<GraphNode> connectedNodes = new List<GraphNode>();
+	[SerializeField]
+	private List<GraphNode> connectedNodes = new List<GraphNode>();
 	public bool isRevealed = false;
 
 	void Awake ()

@@ -23,6 +23,11 @@ public class Police : Entity
 		transform.position = currentNode.transform.position;
 	}
 
+	public void MoveToNewNode(GraphNode _node)
+	{
+		Move(_node);
+	}
+
 	// event on start of a new phase
 	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
 	{

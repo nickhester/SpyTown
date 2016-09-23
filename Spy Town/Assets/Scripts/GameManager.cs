@@ -40,7 +40,8 @@ public class GameManager : MonoBehaviour
 	public enum Team
 	{
 		PRIMARY,
-		SECONDARY
+		SECONDARY,
+		NEUTRAL
 	}
 
 	public enum RoundPhase

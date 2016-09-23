@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public abstract class Entity : MonoBehaviour
 {
 	protected GameManager gameManager;
-	protected GraphNode currentNode;
+	public GraphNode currentNode;
 
 	public float pushAwayRadius = 2.0f;
 	private List<GameObject> currentPushAwayObjects = new List<GameObject>();
@@ -29,11 +29,14 @@ public abstract class Entity : MonoBehaviour
 
 	void FindPushAwayTargets()
 	{
-		for (int i = 0; i < gameManager.allEntities.Count; i++)
+		if (gameManager != null)
 		{
-			if (gameManager.allEntities[i].currentNode == currentNode && gameManager.allEntities[i] != this)
+			for (int i = 0; i < gameManager.allEntities.Count; i++)
 			{
-				currentPushAwayObjects.Add(gameManager.allEntities[i].gameObject);
+				if (gameManager.allEntities[i].currentNode == currentNode && gameManager.allEntities[i] != this)
+				{
+					currentPushAwayObjects.Add(gameManager.allEntities[i].gameObject);
+				}
 			}
 		}
 	}

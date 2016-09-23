@@ -9,6 +9,9 @@ public class Spy : Entity
 
 	private bool isBeingMoved = false;
 
+	public Color primaryTeamColor;
+	public Color secondaryTeamColor;
+
 	void Awake()
 	{
 		base.Awake();
@@ -71,6 +74,15 @@ public class Spy : Entity
 		myTeam = _team;
 		myEmbassy = _embassy;
 		transform.position = currentNode.transform.position;
+
+		if (_team == GameManager.Team.PRIMARY)
+		{
+			GetComponent<Renderer>().material.SetColor("_Color", primaryTeamColor);
+		}
+		else if (_team == GameManager.Team.SECONDARY)
+		{
+			GetComponent<Renderer>().material.SetColor("_Color", secondaryTeamColor);
+		}
 	}
 
 	// event on start of a new phase
@@ -79,13 +91,15 @@ public class Spy : Entity
 		bool isMyTurn = _team == myTeam;
 		if (_phase == GameManager.RoundPhase.PLAYERTURN)
 		{
-			// activate entity if it's their turn
+			ResetPosition();
 			ActivateEntity(isMyTurn);
 		}
 		else if (_phase == GameManager.RoundPhase.MIDTURN || _phase == GameManager.RoundPhase.START)
 		{
 			ActivateEntity(false);
 		}
+
+		
 	}
 
 	void OnObjectClicked(GameObject _go, RaycastHit _hit)

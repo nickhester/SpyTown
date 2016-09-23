@@ -18,4 +18,24 @@ public class GraphManager : MonoBehaviour
 			nodes[i].Reveal(false);
 		}
 	}
+
+	/*
+	public int GetNodeDistance(GraphNode _start, GraphNode _end)
+	{
+
+	}
+	*/
+
+	public bool IsNodesConnected(GraphNode _n1, GraphNode _n2)
+	{
+		List<GraphNode> _nodes = _n1.GetConnectedNodes();
+		for (int i = 0; i < _nodes.Count; i++)
+		{
+			if (_nodes[i] == _n2)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

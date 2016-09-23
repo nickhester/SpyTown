@@ -8,6 +8,7 @@ public class Embassy : MonoBehaviour
 	public int numStartingSpies = 3;
 	public GameObject spyPrefab;
 	private List<Spy> mySpies = new List<Spy>();
+	private PoliceManager policeManager;
 
 	public int numActionsPerTurn;
 	private int numActionsRemaining;
@@ -20,6 +21,8 @@ public class Embassy : MonoBehaviour
 
 	void Start ()
 	{
+		policeManager = GameObject.FindObjectOfType<PoliceManager>();
+
 		for (int i = 0; i < numStartingSpies; i++)
 		{
 			GameObject go = Instantiate(spyPrefab) as GameObject;
@@ -57,6 +60,18 @@ public class Embassy : MonoBehaviour
 	public bool RequestSpyMovement(Spy _s, GraphNode _node)
 	{
 		// TODO: confirm valid movement
+
+		// confirm one space movement
+		if (!GameManager.Instance.graphManager.IsNodesConnected(_s.currentNode, _node))
+		{
+			return false;
+		}
+
+		// confirm no police are occupying
+		if (policeManager.IsPoliceHere(_node))
+		{
+			return false;
+		}
 
 		return true;
 	}
