@@ -46,9 +46,15 @@ public class Prompts : MonoBehaviour
 
 	void OnDestroy()
 	{
-		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
-		GameManager.Instance.OnActionTaken -= OnActionTaken;
-		PoliceManager.Instance.OnPoliceMovementComplete -= OnPoliceMovementComplete;
+		if (GameManager.Instance != null)
+		{
+			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+			GameManager.Instance.OnActionTaken -= OnActionTaken;
+		}
+		if (PoliceManager.Instance != null)
+		{
+			PoliceManager.Instance.OnPoliceMovementComplete -= OnPoliceMovementComplete;
+		}
 	}
 
 	void Start()

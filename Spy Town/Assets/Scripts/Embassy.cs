@@ -24,9 +24,15 @@ public class Embassy : MonoBehaviour
 
 	void OnDestroy()
 	{
-		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
-		GameManager.Instance.OnActionTaken -= OnActionTaken;
-		Prompts.Instance.OnSpecialActionInitiated -= OnSpecialActionInitiated;
+		if (GameManager.Instance != null)
+		{
+			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+			GameManager.Instance.OnActionTaken -= OnActionTaken;
+		}
+		if (Prompts.Instance != null)
+		{
+			Prompts.Instance.OnSpecialActionInitiated -= OnSpecialActionInitiated;
+		}
 	}
 
 	void Start ()
@@ -101,27 +107,26 @@ public class Embassy : MonoBehaviour
 
 	void CheckSpecialActionsToShow()
 	{
-		if (GameManager.Instance.currentPlayerTurn == myTeam && numActionsRemaining > 0)
+		if (GameManager.Instance.currentPlayerTurn == myTeam)
 		{
-			// TODO: (minor optimization) could cache this list somewhere so it doesn't have to be regenerated again later
-			List<Spy> validArrests = FindValidArrests();
-			bool isValidArrests = validArrests.Count > 0;
-			Prompts.Instance.ShowActionArrest(isValidArrests);
-		}
-		else
-		{
-			Prompts.Instance.ShowActionArrest(false);
+			if (numActionsRemaining > 0)
+			{
+				List<Spy> validArrests = FindValidArrests();
+				bool isValidArrests = validArrests.Count > 0;
+				Prompts.Instance.ShowActionArrest(isValidArrests);
+			}
+			else
+			{
+				Prompts.Instance.ShowActionArrest(false);
+			}
 		}
 	}
 
 	public void OnActionTaken(GameManager.Team _team, Action.Actions _action)
 	{
-		if (_team == myTeam)
-		{
-			numActionsRemaining--;
+		numActionsRemaining--;
 
-			CheckSpecialActionsToShow();
-		}
+		CheckSpecialActionsToShow();
 	}
 
 	private List<Spy> FindValidArrests()
@@ -187,7 +192,7 @@ public class Embassy : MonoBehaviour
 			List<Spy> validArrests = FindValidArrests();
 			for (int i = 0; i < validArrests.Count; i++)
 			{
-				validArrests[i].ShowPlayerCanvas(true);
+				validArrests[i].ShowSpyCanvas(true);
 			}
 		}
 	}

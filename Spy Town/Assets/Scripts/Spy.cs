@@ -26,17 +26,23 @@ public class Spy : Entity
 	{
 		base.OnDestroy();
 
-		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
-		InputEvent.Instance.OnObjectClicked -= OnObjectClicked;
-		GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;
-		GameManager.Instance.OnEntitiesNeedRevealed -= OnEntitiesNeedRevealed;
+		if (GameManager.Instance != null)
+		{
+			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+			GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;
+			GameManager.Instance.OnEntitiesNeedRevealed -= OnEntitiesNeedRevealed;
+		}
+		if (InputEvent.Instance != null)
+		{
+			InputEvent.Instance.OnObjectClicked -= OnObjectClicked;
+		}
 	}
 
 	void Start()
 	{
 		base.Start();
 		
-		ShowPlayerCanvas(false);
+		ShowSpyCanvas(false);
 	}
 
 	void Update()
@@ -157,7 +163,7 @@ public class Spy : Entity
     {
         base.OnEntityHasMoved(_fromNode, _toNode, _entity);
 		
-		ShowPlayerCanvas(false);
+		ShowSpyCanvas(false);
     }
 
 	public void Button_Arrest()
@@ -165,8 +171,13 @@ public class Spy : Entity
 		myEmbassy.ArrestSpy(this);
 	}
 
-	public void ShowPlayerCanvas(bool _b)
+	public void ShowSpyCanvas(bool _b)
 	{
 		GetMyCanvas().enabled = _b;
+	}
+
+	public Embassy GetMyEmbassy()
+	{
+		return myEmbassy;
 	}
 }

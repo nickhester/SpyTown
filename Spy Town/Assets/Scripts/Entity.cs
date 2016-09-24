@@ -20,7 +20,10 @@ public abstract class Entity : MonoBehaviour
 
 	protected void OnDestroy()
 	{
-		GameManager.Instance.OnEntityHasMoved -= OnEntityHasMoved;
+		if (GameManager.Instance != null)
+		{
+			GameManager.Instance.OnEntityHasMoved -= OnEntityHasMoved;
+		}
 	}
 
 	protected void Start ()

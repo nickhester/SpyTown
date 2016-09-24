@@ -20,10 +20,16 @@ public class Police : Entity
 	{
 		base.OnDestroy();
 
-		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
-		InputEvent.Instance.OnObjectClicked -= OnObjectClicked;
-		GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;
-		GameManager.Instance.OnEntitiesNeedRevealed -= OnEntitiesNeedRevealed;
+		if (GameManager.Instance != null)
+		{
+			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+			GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;
+			GameManager.Instance.OnEntitiesNeedRevealed -= OnEntitiesNeedRevealed;
+		}
+		if (InputEvent.Instance != null)
+		{
+			InputEvent.Instance.OnObjectClicked -= OnObjectClicked;
+		}
 	}
 
 	public void InitializePolice(GraphNode _startingNode, PoliceManager _policeManager)
@@ -46,6 +52,17 @@ public class Police : Entity
 		}
 		
 		Move(_node);
+
+		// arrest occupying spies
+		List<Entity> entities = _node.GetOccupyingEntities();
+		for (int i = 0; i < entities.Count; i++)
+		{
+			Spy s = entities[i].GetComponent<Spy>();
+			if (s != null)
+			{
+				s.GetMyEmbassy().ArrestSpy(s);
+			}
+		}
         policeManager.PoliceReportMovementComplete();
 
     }
