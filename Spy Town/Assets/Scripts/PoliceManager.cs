@@ -38,6 +38,11 @@ public class PoliceManager : MonoBehaviour
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
 	}
 
+	protected void OnDestroy()
+	{
+		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+	}
+
 	private void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
 	{
 		if (_phase == GameManager.RoundPhase.MIDTURN)

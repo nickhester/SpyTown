@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GraphManager : MonoBehaviour
 {
-	List<GraphNode> nodes = new List<GraphNode>();
+	private List<GraphNode> nodes = new List<GraphNode>();
 
 	void Start ()
 	{
@@ -17,6 +17,11 @@ public class GraphManager : MonoBehaviour
 		{
 			nodes[i].Reveal(false);
 		}
+	}
+
+	public List<GraphNode> GetAllNodes()
+	{
+		return nodes;
 	}
 
 	/*

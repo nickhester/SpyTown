@@ -4,39 +4,60 @@ using System.Collections.Generic;
 
 public abstract class Entity : MonoBehaviour
 {
-	protected GameManager gameManager;
 	public GraphNode currentNode;
 
 	public float pushAwayRadius = 2.0f;
 	private List<GameObject> currentPushAwayObjects = new List<GameObject>();
 	public float pushAwaySpeed = 1.0f;
 
+	private Renderer myMesh = null;
+    private Canvas myCanvas = null;
+
 	protected void Awake()
 	{
 		GameManager.Instance.OnEntityHasMoved += OnEntityHasMoved;
 	}
 
-	void Start ()
+	protected void OnDestroy()
 	{
-		gameManager = GameObject.FindObjectOfType<GameManager>();
-		FindPushAwayTargets();
+		GameManager.Instance.OnEntityHasMoved -= OnEntityHasMoved;
 	}
+
+	protected void Start ()
+	{
+		FindPushAwayTargets();
+    }
 	
 	protected void Update ()
 	{
 		ContinuousPushAway();
 	}
 
-	void FindPushAwayTargets()
+	protected Renderer GetMyMesh()
 	{
-		if (gameManager != null)
+		if (myMesh == null)
 		{
-			for (int i = 0; i < gameManager.allEntities.Count; i++)
+			myMesh = GetComponentInChildren<Renderer>();
+		}
+		return myMesh;
+	}
+
+    protected Canvas GetMyCanvas()
+    {
+        if (myCanvas == null)
+        {
+            myCanvas = GetComponentInChildren<Canvas>();
+        }
+        return myCanvas;
+    }
+
+    void FindPushAwayTargets()
+	{
+		for (int i = 0; i < GameManager.Instance.GetAllEntities().Count; i++)
+		{
+			if (GameManager.Instance.GetAllEntities()[i].currentNode == currentNode && GameManager.Instance.GetAllEntities()[i] != this)
 			{
-				if (gameManager.allEntities[i].currentNode == currentNode && gameManager.allEntities[i] != this)
-				{
-					currentPushAwayObjects.Add(gameManager.allEntities[i].gameObject);
-				}
+				currentPushAwayObjects.Add(GameManager.Instance.GetAllEntities()[i].gameObject);
 			}
 		}
 	}
@@ -45,19 +66,22 @@ public abstract class Entity : MonoBehaviour
 	{
 		for (int i = 0; i < currentPushAwayObjects.Count; i++)
 		{
-			Vector3 differenceVector = transform.position - currentPushAwayObjects[i].transform.position;
-			if (differenceVector.magnitude == 0.0f)
+			if (currentPushAwayObjects[i] != null)
 			{
-				transform.position +=  new Vector3(Random.Range(-1.0f, 1.0f), 0.0f, Random.Range(-1.0f, 1.0f)).normalized * pushAwaySpeed * Time.deltaTime;
-			}
-			else if (differenceVector.magnitude < pushAwayRadius)
-			{
-				transform.position += differenceVector.normalized * pushAwaySpeed * Time.deltaTime;
-			}
-			else if (differenceVector.magnitude >= pushAwayRadius)
-			{
-				currentPushAwayObjects.RemoveAt(i);
-				i--;
+				Vector3 differenceVector = transform.position - currentPushAwayObjects[i].transform.position;
+				if (differenceVector.magnitude == 0.0f)
+				{
+					transform.position += new Vector3(Random.Range(-1.0f, 1.0f), 0.0f, Random.Range(-1.0f, 1.0f)).normalized * pushAwaySpeed * Time.deltaTime;
+				}
+				else if (differenceVector.magnitude < pushAwayRadius)
+				{
+					transform.position += differenceVector.normalized * pushAwaySpeed * Time.deltaTime;
+				}
+				else if (differenceVector.magnitude >= pushAwayRadius)
+				{
+					currentPushAwayObjects.RemoveAt(i);
+					i--;
+				}
 			}
 		}
 		
@@ -65,13 +89,13 @@ public abstract class Entity : MonoBehaviour
 
 	protected void ActivateEntity(bool _activate)
 	{
-		GetComponent<Collider>().enabled = _activate;
+		GetMyMesh().GetComponent<Collider>().enabled = _activate;
 		RevealEntity(_activate);
 	}
 
 	protected void RevealEntity(bool b)
 	{
-		GetComponent<Renderer>().enabled = b;
+		GetMyMesh().enabled = b;
 	}
 
 	protected void ResetPosition()
@@ -80,14 +104,15 @@ public abstract class Entity : MonoBehaviour
 		FindPushAwayTargets();
 	}
 
-	public void Move(GraphNode _newNode)
+	public virtual void Move(GraphNode _newNode)
 	{
+        GraphNode oldNode = currentNode;
 		currentNode = _newNode;
 		ResetPosition();
-		gameManager.ReportEntityHasMoved(_newNode);
+		GameManager.Instance.ReportEntityHasMoved(oldNode, _newNode, this);
 	}
 
-	virtual protected void OnEntityHasMoved(GraphNode _graphNode)
+	virtual protected void OnEntityHasMoved(GraphNode _fromNode, GraphNode _toNode, Entity _entity)
 	{
 		FindPushAwayTargets();
 	}

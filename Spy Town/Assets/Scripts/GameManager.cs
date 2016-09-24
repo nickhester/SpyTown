@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-	public List<Entity> allEntities = new List<Entity>();
+	private List<Entity> allEntities;
 
 	// object references
 	public GraphManager graphManager;
@@ -12,11 +12,9 @@ public class GameManager : MonoBehaviour
 	// delegates
 	public delegate void OnPhaseStartEvent(RoundPhase _phase, Team _team);
 	public event OnPhaseStartEvent OnPhaseStart;
-	public delegate void OnEntityHasMovedEvent(GraphNode _graphNode);
+	public delegate void OnEntityHasMovedEvent(GraphNode _fromNode, GraphNode _toNode, Entity _entity);
 	public event OnEntityHasMovedEvent OnEntityHasMoved;
-	public delegate void OnEntityHasMovedLateEvent(GraphNode _graphNode);
-	public event OnEntityHasMovedLateEvent OnEntityHasMovedLate;
-	public delegate void OnActionTakenEvent();
+	public delegate void OnActionTakenEvent(Team _team, Action.Actions _action);
 	public event OnActionTakenEvent OnActionTaken;
 	public delegate void OnNodesNeedRevealedEvent();
 	public event OnNodesNeedRevealedEvent OnNodesNeedRevealed;
@@ -43,7 +41,6 @@ public class GameManager : MonoBehaviour
 		SECONDARY,
 		NEUTRAL
 	}
-
 	public enum RoundPhase
 	{
 		START,
@@ -53,23 +50,41 @@ public class GameManager : MonoBehaviour
 	public RoundPhase currentPhase = RoundPhase.START;
 	public Team currentPlayerTurn = Team.PRIMARY;
 
-	private List<Embassy> embassies = new List<Embassy>();
+	private List<Embassy> embassies;
 
 	void Start ()
 	{
-		allEntities.AddRange(GameObject.FindObjectsOfType<Entity>());
 		OnPhaseStart(currentPhase, currentPlayerTurn);
-		embassies.AddRange(GameObject.FindObjectsOfType<Embassy>());
 		graphManager = GameObject.FindObjectOfType<GraphManager>();
 	}
 
+	public List<Entity> GetAllEntities()
+	{
+		if (allEntities == null)
+		{
+			allEntities = new List<Entity>();
+			allEntities.AddRange(GameObject.FindObjectsOfType<Entity>());
+		}
+		return allEntities;
+	}
+
+	public List<Embassy> GetEmbassies()
+	{
+		if (embassies == null)
+		{
+			embassies = new List<Embassy>();
+			embassies.AddRange(GameObject.FindObjectsOfType<Embassy>());
+		}
+		return embassies;
+	}
+	
 	public Embassy GetActiveEmbassy()
 	{
-		for (int i = 0; i < embassies.Count; i++)
+		for (int i = 0; i < GetEmbassies().Count; i++)
 		{
-			if (embassies[i].myTeam == currentPlayerTurn)
+			if (GetEmbassies()[i].myTeam == currentPlayerTurn)
 			{
-				return embassies[i];
+				return GetEmbassies()[i];
 			}
 		}
 		return null;
@@ -95,16 +110,17 @@ public class GameManager : MonoBehaviour
 		UpdateBoardVisibility();
 	}
 
-	public void ReportEntityHasMoved(GraphNode _n)
+	public void ReportEntityHasMoved(GraphNode _fromNode, GraphNode _toNode, Entity _entity)
 	{
 		UpdateBoardVisibility();
-		OnEntityHasMoved(_n);
-		//OnEntityHasMovedLate(_n);
+		OnEntityHasMoved(_fromNode, _toNode, _entity);
 	}
 
-	public void ReportActionTaken()
+	public void ReportActionTaken(Team _team, Action.Actions _action)
 	{
-		OnActionTaken();
+		allEntities = null;
+
+		OnActionTaken(_team, _action);
 	}
 
 	void UpdateBoardVisibility()

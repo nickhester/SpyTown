@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Spy : Entity
 {
-	private GameManager.Team myTeam;
+	public GameManager.Team myTeam;
 	private Embassy myEmbassy;
 
 	private bool isBeingMoved = false;
@@ -20,6 +20,23 @@ public class Spy : Entity
 		InputEvent.Instance.OnObjectClicked += OnObjectClicked;
 		GameManager.Instance.OnNodesNeedRevealed += OnNodesNeedRevealed;
 		GameManager.Instance.OnEntitiesNeedRevealed += OnEntitiesNeedRevealed;
+	}
+
+	void OnDestroy()
+	{
+		base.OnDestroy();
+
+		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+		InputEvent.Instance.OnObjectClicked -= OnObjectClicked;
+		GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;
+		GameManager.Instance.OnEntitiesNeedRevealed -= OnEntitiesNeedRevealed;
+	}
+
+	void Start()
+	{
+		base.Start();
+		
+		ShowPlayerCanvas(false);
 	}
 
 	void Update()
@@ -52,13 +69,13 @@ public class Spy : Entity
 			if (Input.GetMouseButtonUp(0))
 			{
 				isBeingMoved = false;
-				gameObject.GetComponent<Collider>().enabled = true;
+				GetMyMesh().GetComponent<Collider>().enabled = true;
 
 				// move spy if possible, otherwise return to origin
 				if (hoveredGraphNode != null && hoveredGraphNode != currentNode && myEmbassy.RequestSpyMovement(this, hoveredGraphNode))
 				{
-					gameManager.ReportActionTaken();
 					Move(hoveredGraphNode);
+					GameManager.Instance.ReportActionTaken(myTeam, Action.Actions.MOVE);
 				}
 				else
 				{
@@ -77,11 +94,11 @@ public class Spy : Entity
 
 		if (_team == GameManager.Team.PRIMARY)
 		{
-			GetComponent<Renderer>().material.SetColor("_Color", primaryTeamColor);
+			GetMyMesh().material.SetColor("_Color", primaryTeamColor);
 		}
 		else if (_team == GameManager.Team.SECONDARY)
 		{
-			GetComponent<Renderer>().material.SetColor("_Color", secondaryTeamColor);
+			GetMyMesh().material.SetColor("_Color", secondaryTeamColor);
 		}
 	}
 
@@ -104,24 +121,24 @@ public class Spy : Entity
 
 	void OnObjectClicked(GameObject _go, RaycastHit _hit)
 	{
-		if (_go == gameObject)
+		if (_go == gameObject || _go.transform.root.gameObject == gameObject)
 		{
 			if (myEmbassy.HasActionRemaining() && myEmbassy.RequestSpySelection(this))
 			{
 				isBeingMoved = true;
-				gameObject.GetComponent<Collider>().enabled = false;
+				GetMyMesh().GetComponent<Collider>().enabled = false;
 			}
 		}
 	}
 
 	bool GetIsMyTurn()
 	{
-		return gameManager.currentPlayerTurn == myTeam;
+		return GameManager.Instance.currentPlayerTurn == myTeam;
 	}
 
 	void OnNodesNeedRevealed()
 	{
-		if (gameManager.currentPhase == GameManager.RoundPhase.PLAYERTURN && GetIsMyTurn())
+		if (GameManager.Instance.currentPhase == GameManager.RoundPhase.PLAYERTURN && GetIsMyTurn())
 		{
 			// reveal this node, and all nodes connected
 			currentNode.Reveal(true);
@@ -130,9 +147,26 @@ public class Spy : Entity
 
 	void OnEntitiesNeedRevealed()
 	{
-		if (gameManager.currentPhase != GameManager.RoundPhase.PLAYERTURN || !GetIsMyTurn())
+		if (GameManager.Instance.currentPhase != GameManager.RoundPhase.PLAYERTURN || !GetIsMyTurn())
 		{
 			RevealEntity(currentNode.GetIsRevealed());
 		}
+	}
+
+    override protected void OnEntityHasMoved(GraphNode _fromNode, GraphNode _toNode, Entity _entity)
+    {
+        base.OnEntityHasMoved(_fromNode, _toNode, _entity);
+		
+		ShowPlayerCanvas(false);
+    }
+
+	public void Button_Arrest()
+	{
+		myEmbassy.ArrestSpy(this);
+	}
+
+	public void ShowPlayerCanvas(bool _b)
+	{
+		GetMyCanvas().enabled = _b;
 	}
 }

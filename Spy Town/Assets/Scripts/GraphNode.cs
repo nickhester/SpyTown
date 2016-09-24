@@ -4,20 +4,12 @@ using System.Collections.Generic;
 
 public class GraphNode : MonoBehaviour
 {
-	private GameManager gameManager;
 	[SerializeField]
 	private List<GraphNode> connectedNodes = new List<GraphNode>();
 	public bool isRevealed = false;
 
-	void Awake ()
-	{
-		GameManager.Instance.OnEntityHasMoved += OnEntityHasMoved;
-	}
-
 	void Start ()
 	{
-		gameManager = GameObject.FindObjectOfType<GameManager>();
-
 		for (int i = 0; i < connectedNodes.Count; i++)
 		{
 			Debug.DrawLine(transform.position, connectedNodes[i].transform.position, Color.green, 30.0f);
@@ -49,8 +41,19 @@ public class GraphNode : MonoBehaviour
 		isRevealed = b;
 	}
 
-	void OnEntityHasMoved(GraphNode _node)
+	public List<Entity> GetOccupyingEntities()
 	{
-		//
+		// this method is inefficient, but quick and easy for now
+		List<Entity> allEntities = new List<Entity>();
+		List<Entity> retList = new List<Entity>();
+		allEntities.AddRange(GameObject.FindObjectsOfType<Entity>());
+		for (int i = 0; i < allEntities.Count; i++)
+		{
+			if (allEntities[i].currentNode == this)
+			{
+				retList.Add(allEntities[i]);
+			}
+		}
+		return retList;
 	}
 }

@@ -16,6 +16,16 @@ public class Police : Entity
 		GameManager.Instance.OnEntitiesNeedRevealed += OnEntitiesNeedRevealed;
 	}
 
+	void OnDestroy()
+	{
+		base.OnDestroy();
+
+		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+		InputEvent.Instance.OnObjectClicked -= OnObjectClicked;
+		GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;
+		GameManager.Instance.OnEntitiesNeedRevealed -= OnEntitiesNeedRevealed;
+	}
+
 	public void InitializePolice(GraphNode _startingNode, PoliceManager _policeManager)
 	{
 		currentNode = _startingNode;
