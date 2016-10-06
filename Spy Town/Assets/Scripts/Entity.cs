@@ -20,7 +20,7 @@ public abstract class Entity : MonoBehaviour
 
 	protected void OnDestroy()
 	{
-		if (GameManager.Instance != null)
+		if (GameManager.IsInstanceIsNotNull())
 		{
 			GameManager.Instance.OnEntityHasMoved -= OnEntityHasMoved;
 		}
@@ -56,11 +56,15 @@ public abstract class Entity : MonoBehaviour
 
     void FindPushAwayTargets()
 	{
-		for (int i = 0; i < GameManager.Instance.GetAllEntities().Count; i++)
+		List<Entity> allEntities = GameManager.Instance.GetAllEntities();
+		for (int i = 0; i < allEntities.Count; i++)
 		{
-			if (GameManager.Instance.GetAllEntities()[i].currentNode == currentNode && GameManager.Instance.GetAllEntities()[i] != this)
+			if (allEntities[i].currentNode == currentNode && GameManager.Instance.GetAllEntities()[i] != this)
 			{
-				currentPushAwayObjects.Add(GameManager.Instance.GetAllEntities()[i].gameObject);
+				if (allEntities[i] != null)
+				{
+					currentPushAwayObjects.Add(allEntities[i].gameObject);
+				}
 			}
 		}
 	}

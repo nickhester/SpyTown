@@ -14,6 +14,8 @@ public class GraphNode : MonoBehaviour
 		{
 			Debug.DrawLine(transform.position, connectedNodes[i].transform.position, Color.green, 30.0f);
 
+			LineGeneric.CreateLineMesh(transform.position, connectedNodes[i].transform.position, 1.0f, 1.0f, 1.0f, Vector3.up);
+
 			connectedNodes[i].AddConnectedNode(this);
 		}
 	}

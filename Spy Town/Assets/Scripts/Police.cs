@@ -20,7 +20,7 @@ public class Police : Entity
 	{
 		base.OnDestroy();
 
-		if (GameManager.Instance != null)
+		if (GameManager.IsInstanceIsNotNull())
 		{
 			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
 			GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;

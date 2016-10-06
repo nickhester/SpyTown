@@ -26,7 +26,7 @@ public class Spy : Entity
 	{
 		base.OnDestroy();
 
-		if (GameManager.Instance != null)
+		if (GameManager.IsInstanceIsNotNull())
 		{
 			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
 			GameManager.Instance.OnNodesNeedRevealed -= OnNodesNeedRevealed;

@@ -40,7 +40,10 @@ public class PoliceManager : MonoBehaviour
 
 	protected void OnDestroy()
 	{
-		GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+		if (GameManager.IsInstanceIsNotNull())
+		{
+			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
+		}
 	}
 
 	private void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)

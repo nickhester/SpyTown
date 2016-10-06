@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 
 	// object references
 	public GraphManager graphManager;
+	public GameOptions gameOptions;
 
 	// delegates
 	public delegate void OnPhaseStartEvent(RoundPhase _phase, Team _team);
@@ -30,7 +31,8 @@ public class GameManager : MonoBehaviour
             if (instance == null)
             {
 				instance = GameObject.FindObjectOfType(typeof(GameManager)) as GameManager;
-            }
+				instance.InstanceInitialize();
+			}
             return instance;
         }
     }
@@ -52,10 +54,15 @@ public class GameManager : MonoBehaviour
 
 	private List<Embassy> embassies;
 
+	void InstanceInitialize()
+	{
+		graphManager = GameObject.FindObjectOfType<GraphManager>();
+		gameOptions = GetComponent<GameOptions>();
+	}
+
 	void Start ()
 	{
 		OnPhaseStart(currentPhase, currentPlayerTurn);
-		graphManager = GameObject.FindObjectOfType<GraphManager>();
 	}
 
 	public List<Entity> GetAllEntities()
@@ -128,5 +135,19 @@ public class GameManager : MonoBehaviour
 		graphManager.RevealAll(false);
 		OnNodesNeedRevealed();
 		OnEntitiesNeedRevealed();
+	}
+
+	public static bool IsInstanceIsNotNull()
+	{
+		if (instance == null)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public void ReportGameHasBeenWon(Embassy _embassy)
+	{
+		print("The Game Has Been Won!");
 	}
 }

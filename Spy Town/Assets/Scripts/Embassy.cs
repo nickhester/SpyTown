@@ -6,25 +6,27 @@ using System;
 public class Embassy : MonoBehaviour
 {
 	public GameManager.Team myTeam;
-	public int numStartingSpies = 3;
 	public GameObject spyPrefab;
 	private List<Spy> mySpies = new List<Spy>();
 	private PoliceManager policeManager;
 	private Embassy opposingEmbassy;
+	[HideInInspector] public GraphNode myEmbassyNode;
 
 	public int numActionsPerTurn;
 	private int numActionsRemaining;
+	private int numSpiesReachedOpposingEmbassy = 0;
 
 	void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
 		GameManager.Instance.OnActionTaken += OnActionTaken;
+		GameManager.Instance.OnEntityHasMoved += OnEntityHasMoved;
 		Prompts.Instance.OnSpecialActionInitiated += OnSpecialActionInitiated;
 	}
 
 	void OnDestroy()
 	{
-		if (GameManager.Instance != null)
+		if (GameManager.IsInstanceIsNotNull())
 		{
 			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
 			GameManager.Instance.OnActionTaken -= OnActionTaken;
@@ -47,8 +49,8 @@ public class Embassy : MonoBehaviour
 				break;
 			}
 		}
-
-		for (int i = 0; i < numStartingSpies; i++)
+		
+		for (int i = 0; i < GameManager.Instance.gameOptions.numSpiesPerTeam; i++)
 		{
 			GameObject go = Instantiate(spyPrefab) as GameObject;
 			Spy s = go.GetComponent<Spy>();
@@ -57,6 +59,7 @@ public class Embassy : MonoBehaviour
 		}
 
 		numActionsRemaining = numActionsPerTurn;
+		myEmbassyNode = GetComponent<GraphNode>();
 	}
 
 	public void ArrestSpy(Spy _spy)
@@ -193,6 +196,23 @@ public class Embassy : MonoBehaviour
 			for (int i = 0; i < validArrests.Count; i++)
 			{
 				validArrests[i].ShowSpyCanvas(true);
+			}
+		}
+	}
+
+	protected void OnEntityHasMoved(GraphNode _fromNode, GraphNode _toNode, Entity _entity)
+	{
+		Spy _spy = _entity as Spy;
+		if (mySpies.Contains(_spy))
+		{
+			if (_toNode == opposingEmbassy.myEmbassyNode)
+			{
+				numSpiesReachedOpposingEmbassy++;
+
+				if (numSpiesReachedOpposingEmbassy >= GameManager.Instance.gameOptions.numSpiesRequiredToReachEmbassy)
+				{
+					GameManager.Instance.ReportGameHasBeenWon(this);
+				}
 			}
 		}
 	}
