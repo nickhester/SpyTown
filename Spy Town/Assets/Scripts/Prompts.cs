@@ -9,6 +9,8 @@ public class Prompts : MonoBehaviour
 	public Button turnDoneButton;
 	public GameObject PlayerTurnSet;
 	public GameObject MidturnSet;
+	public GameObject MidturnReadySet;
+	public GameObject PreviousTurnSummarySet;
 	public Text actionsLeft;
 
 	public Button actionArrest;
@@ -19,8 +21,10 @@ public class Prompts : MonoBehaviour
 
     private GameManager.Team nextTeamUp;
 
+	[SerializeField] private Text previousTurnSummaryDescription;
+
 	// delegates
-	public delegate void OnSpecialActionInitiatedEvent(Action.Actions _action);
+	public delegate void OnSpecialActionInitiatedEvent(Action.ActionType _action);
 	public event OnSpecialActionInitiatedEvent OnSpecialActionInitiated;
 	// singleton
 	private static Prompts instance;
@@ -71,21 +75,22 @@ public class Prompts : MonoBehaviour
         nextTeamUp = _team;
 
 
-        if (_phase == GameManager.RoundPhase.START)
+		if (_phase == GameManager.RoundPhase.START)
 		{
-            ShowPlayerStartUI();
-        }
-        else if (_phase == GameManager.RoundPhase.MIDTURN)
-        {
-            // don't do anything till police report completion
-        }
+			ShowPlayerStartUI();
+		}
+		else if (_phase == GameManager.RoundPhase.MIDTURN)
+		{
+			ShowMidturnReadyUI();
+			HideTurnSummary();
+		}
 		else
 		{
 			PlayerTurnSet.SetActive(true);
 		}
 	}
 
-	void OnActionTaken(GameManager.Team _team, Action.Actions _action)
+	void OnActionTaken(GameManager.Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
 	{
 		UpdateActionsLeft();
 	}
@@ -103,12 +108,24 @@ public class Prompts : MonoBehaviour
 	{
 		PlayerTurnSet.SetActive(false);
 		MidturnSet.SetActive(false);
+		MidturnReadySet.SetActive(false);
+	}
+
+	public void TriggerPoliceMovementStart()
+	{
+		TurnOffAllPrompts();
+		PoliceManager.Instance.TakePoliceTurn();
 	}
 
     void OnPoliceMovementComplete()
     {
         ShowPlayerStartUI();
     }
+
+	void ShowMidturnReadyUI()
+	{
+		MidturnReadySet.SetActive(true);
+	}
 
     void ShowPlayerStartUI()
     {
@@ -134,6 +151,17 @@ public class Prompts : MonoBehaviour
 	public void ButtonPressArrest()
 	{
 		// trigger event
-		OnSpecialActionInitiated(Action.Actions.ARREST);
+		OnSpecialActionInitiated(Action.ActionType.ARREST);
+	}
+
+	public void ShowTurnSummary(string s)
+	{
+		PreviousTurnSummarySet.SetActive(true);
+		previousTurnSummaryDescription.text = s;
+	}
+
+	public void HideTurnSummary()
+	{
+		PreviousTurnSummarySet.SetActive(false);
 	}
 }

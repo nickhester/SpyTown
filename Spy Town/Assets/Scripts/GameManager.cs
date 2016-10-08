@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
 	public event OnPhaseStartEvent OnPhaseStart;
 	public delegate void OnEntityHasMovedEvent(GraphNode _fromNode, GraphNode _toNode, Entity _entity);
 	public event OnEntityHasMovedEvent OnEntityHasMoved;
-	public delegate void OnActionTakenEvent(Team _team, Action.Actions _action);
+	public delegate void OnActionTakenEvent(Team _team, Action.ActionType _action, GameManager.Team _buildingTeam);
 	public event OnActionTakenEvent OnActionTaken;
 	public delegate void OnNodesNeedRevealedEvent();
 	public event OnNodesNeedRevealedEvent OnNodesNeedRevealed;
@@ -123,11 +123,11 @@ public class GameManager : MonoBehaviour
 		OnEntityHasMoved(_fromNode, _toNode, _entity);
 	}
 
-	public void ReportActionTaken(Team _team, Action.Actions _action)
+	public void ReportActionTaken(Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
 	{
 		allEntities = null;
 
-		OnActionTaken(_team, _action);
+		OnActionTaken(_team, _action, _buildingTeam);
 	}
 
 	void UpdateBoardVisibility()

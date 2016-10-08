@@ -16,6 +16,8 @@ public class Embassy : MonoBehaviour
 	private int numActionsRemaining;
 	private int numSpiesReachedOpposingEmbassy = 0;
 
+	private List<ActionRecord> turnSummary = new List<ActionRecord>();
+
 	void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
@@ -66,15 +68,23 @@ public class Embassy : MonoBehaviour
 	{
 		mySpies.Remove(_spy);
 		Destroy(_spy.gameObject);
-		GameManager.Instance.ReportActionTaken(myTeam, Action.Actions.ARREST);
+		GameManager.Instance.ReportActionTaken(opposingEmbassy.myTeam, Action.ActionType.ARREST, _spy.currentNode.GetNodeTeamAssociation());
 	}
 	
 	// event on start of a new phase
 	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
 	{
 		numActionsRemaining = numActionsPerTurn;
-
 		CheckSpecialActionsToShow();
+
+		if (_phase == GameManager.RoundPhase.PLAYERTURN)
+		{
+			if (_team == myTeam)
+			{
+				turnSummary.Clear();
+				opposingEmbassy.DisplayTurnSummary();
+			}
+		}
 	}
 
 	public bool HasActionRemaining()
@@ -125,11 +135,32 @@ public class Embassy : MonoBehaviour
 		}
 	}
 
-	public void OnActionTaken(GameManager.Team _team, Action.Actions _action)
+	public void OnActionTaken(GameManager.Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
 	{
-		numActionsRemaining--;
+		if (_team == myTeam)
+		{
+			numActionsRemaining--;
+
+			ActionRecord thisAction = new ActionRecord();
+			thisAction.actionType = _action;
+			thisAction.buildingTeam = _buildingTeam;
+			turnSummary.Add(thisAction);
+		}
 
 		CheckSpecialActionsToShow();
+	}
+
+	public void DisplayTurnSummary()
+	{
+		string s = "";
+		for (int i = 0; i < turnSummary.Count; i++)
+		{
+			s += turnSummary[i].actionType;
+			s += (turnSummary[i].actionType == Action.ActionType.MOVE ? " to " : " at ");
+			s += turnSummary[i].buildingTeam + " Building.";
+			s += "\n";
+		}
+		Prompts.Instance.ShowTurnSummary(s);
 	}
 
 	private List<Spy> FindValidArrests()
@@ -188,7 +219,7 @@ public class Embassy : MonoBehaviour
 		return mySpies;
 	}
 
-	private void OnSpecialActionInitiated(Action.Actions _action)
+	private void OnSpecialActionInitiated(Action.ActionType _action)
 	{
 		if (GameManager.Instance.currentPlayerTurn == myTeam)
 		{
@@ -216,4 +247,10 @@ public class Embassy : MonoBehaviour
 			}
 		}
 	}
+}
+
+struct ActionRecord
+{
+	public Action.ActionType actionType;
+	public GameManager.Team buildingTeam;
 }

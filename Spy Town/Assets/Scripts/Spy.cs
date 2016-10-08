@@ -81,7 +81,7 @@ public class Spy : Entity
 				if (hoveredGraphNode != null && hoveredGraphNode != currentNode && myEmbassy.RequestSpyMovement(this, hoveredGraphNode))
 				{
 					Move(hoveredGraphNode);
-					GameManager.Instance.ReportActionTaken(myTeam, Action.Actions.MOVE);
+					GameManager.Instance.ReportActionTaken(myTeam, Action.ActionType.MOVE, hoveredGraphNode.GetNodeTeamAssociation());
 				}
 				else
 				{

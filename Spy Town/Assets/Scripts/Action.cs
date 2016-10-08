@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Action : MonoBehaviour {
 
-	public enum Actions
+	public enum ActionType
 	{
 		MOVE,
 		ARREST

@@ -58,4 +58,21 @@ public class GraphNode : MonoBehaviour
 		}
 		return retList;
 	}
+
+	public GameManager.Team GetNodeTeamAssociation()
+	{
+		Building b = GetComponent<Building>();
+		if (b != null)
+		{
+			return b.teamAssociation;
+		}
+
+		Embassy e = GetComponent<Embassy>();
+		if (e != null)
+		{
+			return e.myTeam;
+		}
+		Debug.LogError("Graph Node " + gameObject.name + " has no building or embassy");
+		return GameManager.Team.NEUTRAL;
+	}
 }

@@ -50,7 +50,7 @@ public class PoliceManager : MonoBehaviour
 	{
 		if (_phase == GameManager.RoundPhase.MIDTURN)
 		{
-			TakePoliceTurn();
+			//
 		}
 	}
 
@@ -91,7 +91,7 @@ public class PoliceManager : MonoBehaviour
 		return false;
 	}
 
-	void TakePoliceTurn()
+	public void TakePoliceTurn()
 	{
 		List<GraphNode> chosenDestinations = new List<GraphNode>();
 		for (int i = 0; i < allPolice.Count; i++)

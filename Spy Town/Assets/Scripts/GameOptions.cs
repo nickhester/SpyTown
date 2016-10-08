@@ -8,6 +8,10 @@ public class GameOptions : MonoBehaviour
 	public int numSpiesRequiredToReachEmbassy = 1;
 	public int policeSightDistance = 1;
 
+	public Color primaryTeamColor;
+	public Color secondaryTeamColor;
+	public Color neutralColor;
+
 	void Start()
 	{
 		if (policeSightDistance != 1)
