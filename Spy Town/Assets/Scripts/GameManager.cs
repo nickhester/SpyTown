@@ -49,6 +49,10 @@ public class GameManager : MonoBehaviour
 		PLAYERTURN,
 		MIDTURN
 	}
+	public enum Pickups
+	{
+		EXTRA_ACTION
+	}
 	public RoundPhase currentPhase = RoundPhase.START;
 	public Team currentPlayerTurn = Team.PRIMARY;
 
