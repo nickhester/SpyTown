@@ -6,6 +6,7 @@ public class Action : MonoBehaviour {
 	public enum ActionType
 	{
 		MOVE,
-		ARREST
+		ARREST,
+		BONUS_ACTION
 	}
 }

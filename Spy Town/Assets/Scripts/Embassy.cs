@@ -17,6 +17,7 @@ public class Embassy : MonoBehaviour
 	private int numSpiesReachedOpposingEmbassy = 0;
 
 	private List<ActionRecord> turnSummary = new List<ActionRecord>();
+	private List<GameManager.Pickups> mySpecialActions = new List<GameManager.Pickups>();
 
 	void Awake()
 	{
@@ -126,25 +127,37 @@ public class Embassy : MonoBehaviour
 			{
 				List<Spy> validArrests = FindValidArrests();
 				bool isValidArrests = validArrests.Count > 0;
-				Prompts.Instance.ShowActionArrest(isValidArrests);
+				Prompts.Instance.ShowActionArrestButton(isValidArrests);
 			}
 			else
 			{
-				Prompts.Instance.ShowActionArrest(false);
+				Prompts.Instance.ShowActionArrestButton(false);
 			}
+
+			Prompts.Instance.ShowActionBonusActionButton(mySpecialActions.Contains(GameManager.Pickups.EXTRA_ACTION));
 		}
+
+
 	}
 
 	public void OnActionTaken(GameManager.Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
 	{
 		if (_team == myTeam)
 		{
-			numActionsRemaining--;
+			// spends action?
+			if (_action == Action.ActionType.MOVE || _action == Action.ActionType.ARREST)
+			{
+				numActionsRemaining--;
+			}
 
-			ActionRecord thisAction = new ActionRecord();
-			thisAction.actionType = _action;
-			thisAction.buildingTeam = _buildingTeam;
-			turnSummary.Add(thisAction);
+			// recorded in turn summary?
+			if (_action == Action.ActionType.MOVE || _action == Action.ActionType.ARREST)
+			{
+				ActionRecord thisAction = new ActionRecord();
+				thisAction.actionType = _action;
+				thisAction.buildingTeam = _buildingTeam;
+				turnSummary.Add(thisAction);
+			}
 		}
 
 		CheckSpecialActionsToShow();
@@ -223,10 +236,26 @@ public class Embassy : MonoBehaviour
 	{
 		if (GameManager.Instance.currentPlayerTurn == myTeam)
 		{
-			List<Spy> validArrests = FindValidArrests();
-			for (int i = 0; i < validArrests.Count; i++)
+			if (_action == Action.ActionType.ARREST)
 			{
-				validArrests[i].ShowSpyCanvas(true);
+				List<Spy> validArrests = FindValidArrests();
+				for (int i = 0; i < validArrests.Count; i++)
+				{
+					validArrests[i].ShowSpyCanvas(true);
+				}
+			}
+			else if (_action == Action.ActionType.BONUS_ACTION)
+			{
+				if (mySpecialActions.Contains(GameManager.Pickups.EXTRA_ACTION))
+				{
+					numActionsRemaining++;
+					mySpecialActions.Remove(GameManager.Pickups.EXTRA_ACTION);
+					GameManager.Instance.ReportActionTaken(myTeam, Action.ActionType.BONUS_ACTION, GameManager.Team.NEUTRAL);
+				}
+				else
+				{
+					Debug.LogError("Embassy attempting to use bonus action, but doesn't seem to have any");
+				}
 			}
 		}
 	}
@@ -236,13 +265,23 @@ public class Embassy : MonoBehaviour
 		Spy _spy = _entity as Spy;
 		if (mySpies.Contains(_spy))
 		{
-			if (_toNode == opposingEmbassy.myEmbassyNode)
+			Embassy _embassy = _toNode.GetComponent<Embassy>();
+			Building _building = _toNode.GetComponent<Building>();
+
+			if (_embassy != null && _embassy == opposingEmbassy)
 			{
 				numSpiesReachedOpposingEmbassy++;
 
 				if (numSpiesReachedOpposingEmbassy >= GameManager.Instance.gameOptions.numSpiesRequiredToReachEmbassy)
 				{
 					GameManager.Instance.ReportGameHasBeenWon(this);
+				}
+			}
+			else if (_building != null)
+			{
+				if (_building.IsPickupAvailable())
+				{
+					mySpecialActions.Add(_building.TakePickup());
 				}
 			}
 		}

@@ -31,10 +31,28 @@ public class Building : MonoBehaviour
 
 	void AddPickup()
 	{
-		// TODO: spawn building canvas
-
+		// spawn building canvas
+		if (myCanvas == null)
+		{
+			myCanvas = Instantiate(canvasPrefab) as GameObject;
+			myCanvas.transform.position += transform.position;
+		}
 
 		// TODO: choose pickup type procedurally
 		myPickupType = GameManager.Pickups.EXTRA_ACTION;
+		isPickupAvailable = true;
+	}
+
+	public bool IsPickupAvailable()
+	{
+		return isPickupAvailable;
+	}
+
+	public GameManager.Pickups TakePickup()
+	{
+		isPickupAvailable = false;
+		Destroy(myCanvas);
+		myCanvas = null;
+		return myPickupType;
 	}
 }

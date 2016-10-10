@@ -14,6 +14,7 @@ public class Prompts : MonoBehaviour
 	public Text actionsLeft;
 
 	public Button actionArrest;
+	public Button actionUseBonusAction;
 
 	public string playerPrimaryStartMessage;
 	public string playerSecondaryStartMessage;
@@ -63,7 +64,8 @@ public class Prompts : MonoBehaviour
 
 	void Start()
 	{
-		ShowActionArrest(false);
+		ShowActionArrestButton(false);
+		ShowActionBonusActionButton(false);
 	}
 
 	// event on start of a new phase
@@ -143,15 +145,26 @@ public class Prompts : MonoBehaviour
         }
     }
 
-	public void ShowActionArrest(bool _b)
+	public void ShowActionArrestButton(bool _b)
 	{
 		actionArrest.gameObject.SetActive(_b);
+	}
+
+	public void ShowActionBonusActionButton(bool _b)
+	{
+		actionUseBonusAction.gameObject.SetActive(_b);
 	}
 
 	public void ButtonPressArrest()
 	{
 		// trigger event
 		OnSpecialActionInitiated(Action.ActionType.ARREST);
+	}
+
+	public void ButtonPressBonusAction()
+	{
+		// trigger event
+		OnSpecialActionInitiated(Action.ActionType.BONUS_ACTION);
 	}
 
 	public void ShowTurnSummary(string s)
