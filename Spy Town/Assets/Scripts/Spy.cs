@@ -12,7 +12,7 @@ public class Spy : Entity
 	public Color primaryTeamColor;
 	public Color secondaryTeamColor;
 
-	void Awake()
+	new void Awake()
 	{
 		base.Awake();
 
@@ -22,7 +22,7 @@ public class Spy : Entity
 		GameManager.Instance.OnEntitiesNeedRevealed += OnEntitiesNeedRevealed;
 	}
 
-	void OnDestroy()
+	new void OnDestroy()
 	{
 		base.OnDestroy();
 
@@ -38,14 +38,14 @@ public class Spy : Entity
 		}
 	}
 
-	void Start()
+	new void Start()
 	{
 		base.Start();
 		
 		ShowSpyCanvas(false);
 	}
 
-	void Update()
+	new void Update()
 	{
 		base.Update();
 
@@ -81,7 +81,7 @@ public class Spy : Entity
 				if (hoveredGraphNode != null && hoveredGraphNode != currentNode && myEmbassy.RequestSpyMovement(this, hoveredGraphNode))
 				{
 					Move(hoveredGraphNode);
-					GameManager.Instance.ReportActionTaken(myTeam, Action.ActionType.MOVE, hoveredGraphNode.GetNodeTeamAssociation());
+					GameManager.Instance.ReportActionTaken(myTeam, GameManager.ActionType.MOVE, hoveredGraphNode.GetNodeTeamAssociation());
 				}
 				else
 				{
@@ -168,7 +168,7 @@ public class Spy : Entity
 
 	public void Button_Arrest()
 	{
-		myEmbassy.ArrestSpy(this);
+		myEmbassy.ArrestSpy(this, null);
 	}
 
 	public void ShowSpyCanvas(bool _b)

@@ -11,6 +11,8 @@ public class Prompts : MonoBehaviour
 	public GameObject MidturnSet;
 	public GameObject MidturnReadySet;
 	public GameObject PreviousTurnSummarySet;
+	public GameObject GameWonSet;
+
 	public Text actionsLeft;
 
 	public Button actionArrest;
@@ -22,10 +24,10 @@ public class Prompts : MonoBehaviour
 
     private GameManager.Team nextTeamUp;
 
-	[SerializeField] private Text previousTurnSummaryDescription;
+	[SerializeField] private Text previousTurnSummaryDescription = null;
 
 	// delegates
-	public delegate void OnSpecialActionInitiatedEvent(Action.ActionType _action);
+	public delegate void OnSpecialActionInitiatedEvent(GameManager.ActionType _action);
 	public event OnSpecialActionInitiatedEvent OnSpecialActionInitiated;
 	// singleton
 	private static Prompts instance;
@@ -45,8 +47,9 @@ public class Prompts : MonoBehaviour
 	void Awake()
 	{
 		GameManager.Instance.OnPhaseStart += OnPhaseStart;
-		GameManager.Instance.OnActionTaken += OnActionTaken;
-        PoliceManager.Instance.OnPoliceMovementComplete += OnPoliceMovementComplete;
+		GameManager.Instance.OnStatUpdated += OnStatUpdated;
+		GameManager.Instance.OnGameEnd += OnGameEnd;
+		PoliceManager.Instance.OnPoliceMovementComplete += OnPoliceMovementComplete;
     }
 
 	void OnDestroy()
@@ -54,7 +57,8 @@ public class Prompts : MonoBehaviour
 		if (GameManager.IsInstanceIsNotNull())
 		{
 			GameManager.Instance.OnPhaseStart -= OnPhaseStart;
-			GameManager.Instance.OnActionTaken -= OnActionTaken;
+			GameManager.Instance.OnStatUpdated -= OnStatUpdated;
+			GameManager.Instance.OnGameEnd -= OnGameEnd;
 		}
 		if (PoliceManager.Instance != null)
 		{
@@ -66,35 +70,6 @@ public class Prompts : MonoBehaviour
 	{
 		ShowActionArrestButton(false);
 		ShowActionBonusActionButton(false);
-	}
-
-	// event on start of a new phase
-	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
-	{
-		TurnOffAllPrompts();
-		UpdateActionsLeft();
-
-        nextTeamUp = _team;
-
-
-		if (_phase == GameManager.RoundPhase.START)
-		{
-			ShowPlayerStartUI();
-		}
-		else if (_phase == GameManager.RoundPhase.MIDTURN)
-		{
-			ShowMidturnReadyUI();
-			HideTurnSummary();
-		}
-		else
-		{
-			PlayerTurnSet.SetActive(true);
-		}
-	}
-
-	void OnActionTaken(GameManager.Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
-	{
-		UpdateActionsLeft();
 	}
 
 	void UpdateActionsLeft()
@@ -111,6 +86,7 @@ public class Prompts : MonoBehaviour
 		PlayerTurnSet.SetActive(false);
 		MidturnSet.SetActive(false);
 		MidturnReadySet.SetActive(false);
+		GameWonSet.SetActive(false);
 	}
 
 	public void TriggerPoliceMovementStart()
@@ -118,12 +94,7 @@ public class Prompts : MonoBehaviour
 		TurnOffAllPrompts();
 		PoliceManager.Instance.TakePoliceTurn();
 	}
-
-    void OnPoliceMovementComplete()
-    {
-        ShowPlayerStartUI();
-    }
-
+	
 	void ShowMidturnReadyUI()
 	{
 		MidturnReadySet.SetActive(true);
@@ -158,13 +129,13 @@ public class Prompts : MonoBehaviour
 	public void ButtonPressArrest()
 	{
 		// trigger event
-		OnSpecialActionInitiated(Action.ActionType.ARREST);
+		OnSpecialActionInitiated(GameManager.ActionType.ARREST);
 	}
 
 	public void ButtonPressBonusAction()
 	{
 		// trigger event
-		OnSpecialActionInitiated(Action.ActionType.BONUS_ACTION);
+		OnSpecialActionInitiated(GameManager.ActionType.BONUS_ACTION);
 	}
 
 	public void ShowTurnSummary(string s)
@@ -177,4 +148,44 @@ public class Prompts : MonoBehaviour
 	{
 		PreviousTurnSummarySet.SetActive(false);
 	}
+
+	// events
+	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
+	{
+		TurnOffAllPrompts();
+		UpdateActionsLeft();
+
+		nextTeamUp = _team;
+
+
+		if (_phase == GameManager.RoundPhase.START)
+		{
+			ShowPlayerStartUI();
+		}
+		else if (_phase == GameManager.RoundPhase.MIDTURN)
+		{
+			ShowMidturnReadyUI();
+			HideTurnSummary();
+		}
+		else
+		{
+			PlayerTurnSet.SetActive(true);
+		}
+	}
+
+	void OnStatUpdated()
+	{
+		UpdateActionsLeft();
+	}
+
+	void OnPoliceMovementComplete()
+	{
+		ShowPlayerStartUI();
+	}
+
+	void OnGameEnd(GameManager.Team _teamWon)
+	{
+		GameWonSet.SetActive(true);
+	}
+
 }

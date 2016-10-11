@@ -9,9 +9,9 @@ public class PoliceManager : MonoBehaviour
 	private List<Police> allPolice = new List<Police>();
 
     [SerializeField]
-    private float timeBeforePoliceMove;
+    private float timeBeforePoliceMove = 0.0f;
     [SerializeField]
-    private float movementDuration;
+    private float movementDuration = 0.0f;
     
     // delegates
     public delegate void OnPoliceMovementCompleteEvent();

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,12 +16,16 @@ public class GameManager : MonoBehaviour
 	public event OnPhaseStartEvent OnPhaseStart;
 	public delegate void OnEntityHasMovedEvent(GraphNode _fromNode, GraphNode _toNode, Entity _entity);
 	public event OnEntityHasMovedEvent OnEntityHasMoved;
-	public delegate void OnActionTakenEvent(Team _team, Action.ActionType _action, GameManager.Team _buildingTeam);
+	public delegate void OnActionTakenEvent(Team _team, ActionType _action, GameManager.Team _buildingTeam);
 	public event OnActionTakenEvent OnActionTaken;
 	public delegate void OnNodesNeedRevealedEvent();
 	public event OnNodesNeedRevealedEvent OnNodesNeedRevealed;
 	public delegate void OnEntitiesNeedRevealedEvent();
 	public event OnEntitiesNeedRevealedEvent OnEntitiesNeedRevealed;
+	public delegate void OnStatUpdatedEvent();
+	public event OnStatUpdatedEvent OnStatUpdated;
+	public delegate void OnGameEndEvent(Team _teamWon);
+	public event OnGameEndEvent OnGameEnd;
 	// singleton
 	private static GameManager instance;
     // instance
@@ -47,11 +52,18 @@ public class GameManager : MonoBehaviour
 	{
 		START,
 		PLAYERTURN,
-		MIDTURN
+		MIDTURN,
+		END
 	}
 	public enum Pickups
 	{
 		EXTRA_ACTION
+	}
+	public enum ActionType
+	{
+		MOVE,
+		ARREST,
+		BONUS_ACTION
 	}
 	public RoundPhase currentPhase = RoundPhase.START;
 	public Team currentPlayerTurn = Team.PRIMARY;
@@ -127,11 +139,16 @@ public class GameManager : MonoBehaviour
 		OnEntityHasMoved(_fromNode, _toNode, _entity);
 	}
 
-	public void ReportActionTaken(Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
+	public void ReportActionTaken(Team _team, GameManager.ActionType _action, GameManager.Team _buildingTeam)
 	{
 		allEntities = null;
 
 		OnActionTaken(_team, _action, _buildingTeam);
+	}
+
+	public void ReportStatUpdated()
+	{
+		OnStatUpdated();
 	}
 
 	void UpdateBoardVisibility()
@@ -150,8 +167,20 @@ public class GameManager : MonoBehaviour
 		return true;
 	}
 
-	public void ReportGameHasBeenWon(Embassy _embassy)
+	public void ReportGameHasBeenWon(Team _teamWon)
 	{
 		print("The Game Has Been Won!");
+		OnGameEnd(_teamWon);
 	}
+
+	public void RestartGame()
+	{
+		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
+	}
+	
+	public void Debug_AddAction()
+	{
+		GetActiveEmbassy().Debug_ApplyBonusAction();
+	}
+	
 }

@@ -65,11 +65,29 @@ public class Embassy : MonoBehaviour
 		myEmbassyNode = GetComponent<GraphNode>();
 	}
 
-	public void ArrestSpy(Spy _spy)
+	public void ArrestSpy(Spy _spyArrested, Entity _entityArresting)		// entity arresting can be null, in which case just assume it's the opposing team
 	{
-		mySpies.Remove(_spy);
-		Destroy(_spy.gameObject);
-		GameManager.Instance.ReportActionTaken(opposingEmbassy.myTeam, Action.ActionType.ARREST, _spy.currentNode.GetNodeTeamAssociation());
+		mySpies.Remove(_spyArrested);
+		Destroy(_spyArrested.gameObject);
+
+		Spy _arrestingSpy = _entityArresting as Spy;
+		Police _arrestingPolice = _entityArresting as Police;
+
+		GameManager.Team _arrestingTeam;
+		if (_arrestingSpy != null)
+		{
+			_arrestingTeam = _arrestingSpy.myTeam;
+		}
+		else if (_arrestingPolice != null)
+		{
+			_arrestingTeam = GameManager.Team.NEUTRAL;
+		}
+		else
+		{
+			_arrestingTeam = opposingEmbassy.myTeam;
+		}
+
+		GameManager.Instance.ReportActionTaken(_arrestingTeam, GameManager.ActionType.ARREST, _spyArrested.currentNode.GetNodeTeamAssociation());
 	}
 	
 	// event on start of a new phase
@@ -140,18 +158,19 @@ public class Embassy : MonoBehaviour
 
 	}
 
-	public void OnActionTaken(GameManager.Team _team, Action.ActionType _action, GameManager.Team _buildingTeam)
+	public void OnActionTaken(GameManager.Team _team, GameManager.ActionType _action, GameManager.Team _buildingTeam)
 	{
 		if (_team == myTeam)
 		{
 			// spends action?
-			if (_action == Action.ActionType.MOVE || _action == Action.ActionType.ARREST)
+			if (_action == GameManager.ActionType.MOVE || _action == GameManager.ActionType.ARREST)
 			{
 				numActionsRemaining--;
+				GameManager.Instance.ReportStatUpdated();
 			}
 
 			// recorded in turn summary?
-			if (_action == Action.ActionType.MOVE || _action == Action.ActionType.ARREST)
+			if (_action == GameManager.ActionType.MOVE || _action == GameManager.ActionType.ARREST)
 			{
 				ActionRecord thisAction = new ActionRecord();
 				thisAction.actionType = _action;
@@ -169,7 +188,7 @@ public class Embassy : MonoBehaviour
 		for (int i = 0; i < turnSummary.Count; i++)
 		{
 			s += turnSummary[i].actionType;
-			s += (turnSummary[i].actionType == Action.ActionType.MOVE ? " to " : " at ");
+			s += (turnSummary[i].actionType == GameManager.ActionType.MOVE ? " to " : " at ");
 			s += turnSummary[i].buildingTeam + " Building.";
 			s += "\n";
 		}
@@ -232,11 +251,11 @@ public class Embassy : MonoBehaviour
 		return mySpies;
 	}
 
-	private void OnSpecialActionInitiated(Action.ActionType _action)
+	private void OnSpecialActionInitiated(GameManager.ActionType _action)
 	{
 		if (GameManager.Instance.currentPlayerTurn == myTeam)
 		{
-			if (_action == Action.ActionType.ARREST)
+			if (_action == GameManager.ActionType.ARREST)
 			{
 				List<Spy> validArrests = FindValidArrests();
 				for (int i = 0; i < validArrests.Count; i++)
@@ -244,13 +263,11 @@ public class Embassy : MonoBehaviour
 					validArrests[i].ShowSpyCanvas(true);
 				}
 			}
-			else if (_action == Action.ActionType.BONUS_ACTION)
+			else if (_action == GameManager.ActionType.BONUS_ACTION)
 			{
 				if (mySpecialActions.Contains(GameManager.Pickups.EXTRA_ACTION))
 				{
-					numActionsRemaining++;
-					mySpecialActions.Remove(GameManager.Pickups.EXTRA_ACTION);
-					GameManager.Instance.ReportActionTaken(myTeam, Action.ActionType.BONUS_ACTION, GameManager.Team.NEUTRAL);
+					ApplyBonusAction();
 				}
 				else
 				{
@@ -274,7 +291,7 @@ public class Embassy : MonoBehaviour
 
 				if (numSpiesReachedOpposingEmbassy >= GameManager.Instance.gameOptions.numSpiesRequiredToReachEmbassy)
 				{
-					GameManager.Instance.ReportGameHasBeenWon(this);
+					GameManager.Instance.ReportGameHasBeenWon(myTeam);
 				}
 			}
 			else if (_building != null)
@@ -286,10 +303,23 @@ public class Embassy : MonoBehaviour
 			}
 		}
 	}
+
+	private void ApplyBonusAction()
+	{
+		numActionsRemaining++;
+		mySpecialActions.Remove(GameManager.Pickups.EXTRA_ACTION);
+		GameManager.Instance.ReportActionTaken(myTeam, GameManager.ActionType.BONUS_ACTION, GameManager.Team.NEUTRAL);
+	}
+
+	public void Debug_ApplyBonusAction()
+	{
+		Debug.LogWarning("Debug Button Used: Add bonus action");
+		ApplyBonusAction();
+	}
 }
 
 struct ActionRecord
 {
-	public Action.ActionType actionType;
+	public GameManager.ActionType actionType;
 	public GameManager.Team buildingTeam;
 }

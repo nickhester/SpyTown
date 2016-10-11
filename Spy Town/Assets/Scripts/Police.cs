@@ -6,7 +6,7 @@ public class Police : Entity
 {
 	PoliceManager policeManager;
     
-    void Awake()
+    new void Awake()
 	{
 		base.Awake();
 
@@ -16,7 +16,7 @@ public class Police : Entity
 		GameManager.Instance.OnEntitiesNeedRevealed += OnEntitiesNeedRevealed;
 	}
 
-	void OnDestroy()
+	new void OnDestroy()
 	{
 		base.OnDestroy();
 
@@ -60,7 +60,7 @@ public class Police : Entity
 			Spy s = entities[i].GetComponent<Spy>();
 			if (s != null)
 			{
-				s.GetMyEmbassy().ArrestSpy(s);
+				s.GetMyEmbassy().ArrestSpy(s, this);
 			}
 		}
         policeManager.PoliceReportMovementComplete();
