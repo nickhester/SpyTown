@@ -67,9 +67,17 @@ public class Embassy : MonoBehaviour
 
 	public void ArrestSpy(Spy _spyArrested, Entity _entityArresting)		// entity arresting can be null, in which case just assume it's the opposing team
 	{
-		mySpies.Remove(_spyArrested);
-		Destroy(_spyArrested.gameObject);
+		if (GameManager.Instance.gameOptions.policeReturnToEmbassyOnArrest)
+		{
+			_spyArrested.Move(myEmbassyNode);
+		}
+		else
+		{
+			mySpies.Remove(_spyArrested);
+			Destroy(_spyArrested.gameObject);
+		}
 
+		// determine whether arrested by spy or police
 		Spy _arrestingSpy = _entityArresting as Spy;
 		Police _arrestingPolice = _entityArresting as Police;
 

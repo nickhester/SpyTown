@@ -7,6 +7,7 @@ public class GameOptions : MonoBehaviour
 	public int numActionsPerTurn = 3;
 	public int numSpiesRequiredToReachEmbassy = 1;
 	public int policeSightDistance = 1;
+	public bool policeReturnToEmbassyOnArrest = true;
 
 	public Color primaryTeamColor;
 	public Color secondaryTeamColor;

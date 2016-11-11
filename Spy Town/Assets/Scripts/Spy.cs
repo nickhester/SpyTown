@@ -67,7 +67,8 @@ public class Spy : Entity
 
 			// raycast against colliders to see what's being hit
 			RaycastHit hit;
-			if (Physics.Raycast(ray, out hit, 1000))
+			LayerMask maskOnlyBuildings = 1 << 8;
+			if (Physics.Raycast(ray, out hit, 1000, maskOnlyBuildings.value))
 			{
 				hoveredGraphNode = hit.collider.gameObject.GetComponent<GraphNode>();
 			}

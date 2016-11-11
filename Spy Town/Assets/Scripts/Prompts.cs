@@ -4,26 +4,27 @@ using UnityEngine.UI;
 
 public class Prompts : MonoBehaviour
 {
-	public Text playerPromptMessage;
-	public Button playerAcceptButton;
-	public Button turnDoneButton;
-	public GameObject PlayerTurnSet;
-	public GameObject MidturnSet;
-	public GameObject MidturnReadySet;
-	public GameObject PreviousTurnSummarySet;
-	public GameObject GameWonSet;
 
-	public Text actionsLeft;
+	[SerializeField] private Text playerPromptMessage;
+	[SerializeField] private Button playerAcceptButton;
+	[SerializeField] private Button turnDoneButton;
+	[SerializeField] private GameObject PlayerTurnSet;
+	[SerializeField] private GameObject MidturnSet;
+	[SerializeField] private GameObject MidturnReadySet;
+	[SerializeField] private GameObject PreviousTurnSummarySet;
+	[SerializeField] private GameObject GameWonSet;
 
-	public Button actionArrest;
-	public Button actionUseBonusAction;
+	[SerializeField] private Text actionsLeft;
 
-	public string playerPrimaryStartMessage;
-	public string playerSecondaryStartMessage;
-	public string playerStartButtonMessage;
+	[SerializeField] private Button actionArrest;
+	[SerializeField] private Button actionUseBonusAction;
+
+	[SerializeField] private string playerPrimaryStartMessage;
+	[SerializeField] private string playerSecondaryStartMessage;
+	[SerializeField] private string playerStartButtonMessage;
 
     private GameManager.Team nextTeamUp;
-
+	
 	[SerializeField] private Text previousTurnSummaryDescription = null;
 
 	// delegates
@@ -43,6 +44,8 @@ public class Prompts : MonoBehaviour
 			return instance;
 		}
 	}
+
+	[SerializeField] private float timeDelayToShowPoliceMove = 1.0f;
 
 	void Awake()
 	{
@@ -180,7 +183,7 @@ public class Prompts : MonoBehaviour
 
 	void OnPoliceMovementComplete()
 	{
-		ShowPlayerStartUI();
+		Invoke("ShowPlayerStartUI", timeDelayToShowPoliceMove);
 	}
 
 	void OnGameEnd(GameManager.Team _teamWon)
