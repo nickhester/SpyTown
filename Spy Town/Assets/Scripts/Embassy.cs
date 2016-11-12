@@ -68,16 +68,6 @@ public class Embassy : MonoBehaviour
 
 	public void ArrestSpy(Spy _spyArrested, Entity _entityArresting)		// entity arresting can be null, in which case just assume it's the opposing team
 	{
-		if (GameManager.Instance.GetGameOptions().policeReturnToEmbassyOnArrest)
-		{
-			_spyArrested.Move(myEmbassyNode);
-		}
-		else
-		{
-			mySpies.Remove(_spyArrested);
-			Destroy(_spyArrested.gameObject);
-		}
-
 		// determine whether arrested by spy or police
 		Spy _arrestingSpy = _entityArresting as Spy;
 		Police _arrestingPolice = _entityArresting as Police;
@@ -97,6 +87,16 @@ public class Embassy : MonoBehaviour
 		}
 
 		GameManager.Instance.ReportActionTaken(_arrestingTeam, GameManager.ActionType.ARREST, _spyArrested.currentNode.GetNodeTeamAssociation());
+
+		if (GameManager.Instance.GetGameOptions().policeReturnToEmbassyOnArrest)
+		{
+			_spyArrested.Move(myEmbassyNode);
+		}
+		else
+		{
+			mySpies.Remove(_spyArrested);
+			Destroy(_spyArrested.gameObject);
+		}
 	}
 	
 	// event on start of a new phase
