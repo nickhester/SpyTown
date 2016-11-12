@@ -12,7 +12,7 @@ public class Building : MonoBehaviour
 
 	void Start()
 	{
-		GameOptions gameOptions = GameObject.FindObjectOfType<GameOptions>();
+		GameOptions gameOptions = GameManager.Instance.GetGameOptions();
 
 		if (teamAssociation == GameManager.Team.PRIMARY)
 		{

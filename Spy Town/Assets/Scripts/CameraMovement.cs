@@ -99,7 +99,7 @@ public class CameraMovement : MonoBehaviour
 			}
 			else if (_team == GameManager.Team.SECONDARY)
 			{
-				if (GameManager.Instance.gameOptions.viewModeBoardGame)
+				if (GameManager.Instance.GetGameOptions().viewModeBoardGame)
 				{
 					MoveToPosition(CameraPosition.SECONDARY);
 				}

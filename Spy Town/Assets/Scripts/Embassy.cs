@@ -15,6 +15,7 @@ public class Embassy : MonoBehaviour
 	public int numActionsPerTurn;
 	private int numActionsRemaining;
 	private int numSpiesReachedOpposingEmbassy = 0;
+	private int numEnemySpiesArrested = 0;
 
 	private List<ActionRecord> turnSummary = new List<ActionRecord>();
 	private List<GameManager.Pickups> mySpecialActions = new List<GameManager.Pickups>();
@@ -53,7 +54,7 @@ public class Embassy : MonoBehaviour
 			}
 		}
 		
-		for (int i = 0; i < GameManager.Instance.gameOptions.numSpiesPerTeam; i++)
+		for (int i = 0; i < GameManager.Instance.GetGameOptions().numSpiesPerTeam; i++)
 		{
 			GameObject go = Instantiate(spyPrefab) as GameObject;
 			Spy s = go.GetComponent<Spy>();
@@ -67,7 +68,7 @@ public class Embassy : MonoBehaviour
 
 	public void ArrestSpy(Spy _spyArrested, Entity _entityArresting)		// entity arresting can be null, in which case just assume it's the opposing team
 	{
-		if (GameManager.Instance.gameOptions.policeReturnToEmbassyOnArrest)
+		if (GameManager.Instance.GetGameOptions().policeReturnToEmbassyOnArrest)
 		{
 			_spyArrested.Move(myEmbassyNode);
 		}
@@ -142,6 +143,16 @@ public class Embassy : MonoBehaviour
 			return false;
 		}
 
+		// confirm if movement into opposing embassy, fulfills winning requirements
+		Embassy _enteringEmbassy = _node.GetComponent<Embassy>();
+		if (_enteringEmbassy && _enteringEmbassy == opposingEmbassy)
+		{
+			if (GameManager.Instance.GetGameOptions().requireOneArrestToWin && numEnemySpiesArrested < 1)
+			{
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -184,6 +195,11 @@ public class Embassy : MonoBehaviour
 				thisAction.actionType = _action;
 				thisAction.buildingTeam = _buildingTeam;
 				turnSummary.Add(thisAction);
+			}
+
+			if (_action == GameManager.ActionType.ARREST)
+			{
+				numEnemySpiesArrested++;
 			}
 		}
 
@@ -297,7 +313,7 @@ public class Embassy : MonoBehaviour
 			{
 				numSpiesReachedOpposingEmbassy++;
 
-				if (numSpiesReachedOpposingEmbassy >= GameManager.Instance.gameOptions.numSpiesRequiredToReachEmbassy)
+				if (numSpiesReachedOpposingEmbassy >= GameManager.Instance.GetGameOptions().numSpiesRequiredToReachEmbassy)
 				{
 					GameManager.Instance.ReportGameHasBeenWon(myTeam);
 				}

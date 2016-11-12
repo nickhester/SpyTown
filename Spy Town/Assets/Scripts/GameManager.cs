@@ -9,7 +9,8 @@ public class GameManager : MonoBehaviour
 
 	// object references
 	public GraphManager graphManager;
-	public GameOptions gameOptions;
+	private GameOptions gameOptions;
+	public GameObject gameOptionsPrefab;
 
 	// delegates
 	public delegate void OnPhaseStartEvent(RoundPhase _phase, Team _team);
@@ -73,12 +74,28 @@ public class GameManager : MonoBehaviour
 	void InstanceInitialize()
 	{
 		graphManager = GameObject.FindObjectOfType<GraphManager>();
-		gameOptions = GetComponent<GameOptions>();
 	}
 
 	void Start ()
 	{
+		Screen.orientation = ScreenOrientation.Portrait;
+
 		OnPhaseStart(currentPhase, currentPlayerTurn);
+	}
+
+	public GameOptions GetGameOptions()
+	{
+		if (gameOptions == null)
+		{
+			gameOptions = FindObjectOfType<GameOptions>();
+
+			if (gameOptions == null)
+			{
+				GameObject go = Instantiate(gameOptionsPrefab) as GameObject;
+				gameOptions = go.GetComponent<GameOptions>();
+			}
+		}
+		return gameOptions;
 	}
 
 	public List<Entity> GetAllEntities()
