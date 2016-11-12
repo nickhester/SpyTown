@@ -208,15 +208,7 @@ public class Embassy : MonoBehaviour
 
 	public void DisplayTurnSummary()
 	{
-		string s = "";
-		for (int i = 0; i < turnSummary.Count; i++)
-		{
-			s += turnSummary[i].actionType;
-			s += (turnSummary[i].actionType == GameManager.ActionType.MOVE ? " to " : " at ");
-			s += turnSummary[i].buildingTeam + " Building.";
-			s += "\n";
-		}
-		Prompts.Instance.ShowTurnSummary(s);
+		Prompts.Instance.ShowTurnSummary(turnSummary);
 	}
 
 	private List<Spy> FindValidArrests()
@@ -342,7 +334,7 @@ public class Embassy : MonoBehaviour
 	}
 }
 
-struct ActionRecord
+public struct ActionRecord
 {
 	public GameManager.ActionType actionType;
 	public GameManager.Team buildingTeam;

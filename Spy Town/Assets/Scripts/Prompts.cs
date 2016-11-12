@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class Prompts : MonoBehaviour
 {
-
 	[SerializeField] private Text playerPromptMessage;
 	[SerializeField] private Button playerAcceptButton;
 	[SerializeField] private Button turnDoneButton;
@@ -23,7 +23,13 @@ public class Prompts : MonoBehaviour
 	[SerializeField] private string playerSecondaryStartMessage;
 	[SerializeField] private string playerStartButtonMessage;
 
-    private GameManager.Team nextTeamUp;
+	// action icons
+	[SerializeField] private GameObject actionIcon_move;
+	[SerializeField] private GameObject actionIcon_arrest;
+	private List<GameObject> actionIcons = new List<GameObject>();
+	[SerializeField] private float actionIconSeparation = 10.0f;
+
+	private GameManager.Team nextTeamUp;
 	
 	[SerializeField] private Text previousTurnSummaryDescription = null;
 
@@ -141,14 +147,58 @@ public class Prompts : MonoBehaviour
 		OnSpecialActionInitiated(GameManager.ActionType.BONUS_ACTION);
 	}
 
-	public void ShowTurnSummary(string s)
+	public void ShowTurnSummary(List<ActionRecord> _actions)
 	{
 		PreviousTurnSummarySet.SetActive(true);
-		previousTurnSummaryDescription.text = s;
+
+		for (int i = 0; i < _actions.Count; i++)
+		{
+			GameObject objectToInstantiate = null;
+			if (_actions[i].actionType == GameManager.ActionType.MOVE || _actions[i].actionType == GameManager.ActionType.BONUS_ACTION)
+			{
+				objectToInstantiate = actionIcon_move;
+			}
+			else if (_actions[i].actionType == GameManager.ActionType.ARREST)
+			{
+				objectToInstantiate = actionIcon_arrest;
+			}
+
+			GameObject go = Instantiate(objectToInstantiate) as GameObject;
+			actionIcons.Add(go);
+
+			// position it
+			go.transform.SetParent(PreviousTurnSummarySet.transform);
+			RectTransform this_rt = go.GetComponent<RectTransform>();
+			RectTransform prefab_rt = objectToInstantiate.GetComponent<RectTransform>();
+			this_rt.anchoredPosition = new Vector2(prefab_rt.anchoredPosition.x + (actionIconSeparation * i), prefab_rt.anchoredPosition.y);
+			this_rt.localRotation = prefab_rt.localRotation;
+			this_rt.localScale = prefab_rt.localScale;
+
+			// color it
+			Color color = Color.cyan;
+			if (_actions[i].buildingTeam == GameManager.Team.PRIMARY)
+			{
+				color = GameManager.Instance.GetGameOptions().primaryTeamColor;
+			}
+			else if (_actions[i].buildingTeam == GameManager.Team.SECONDARY)
+			{
+				color = GameManager.Instance.GetGameOptions().secondaryTeamColor;
+			}
+			else if (_actions[i].buildingTeam == GameManager.Team.NEUTRAL)
+			{
+				color = GameManager.Instance.GetGameOptions().neutralColor;
+			}
+
+			go.GetComponent<Image>().color = color;
+		}
 	}
 
 	public void HideTurnSummary()
 	{
+		for (int i = 0; i < actionIcons.Count; i++)
+		{
+			Destroy(actionIcons[i]);
+		}
 		PreviousTurnSummarySet.SetActive(false);
 	}
 
