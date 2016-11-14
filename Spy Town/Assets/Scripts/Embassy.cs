@@ -88,9 +88,10 @@ public class Embassy : MonoBehaviour
 
 		GameManager.Instance.ReportActionTaken(_arrestingTeam, GameManager.ActionType.ARREST, _spyArrested.currentNode.GetNodeTeamAssociation());
 
-		if (GameManager.Instance.GetGameOptions().policeReturnToEmbassyOnArrest)
+		if (GameManager.Instance.GetGameOptions().spyReturnToEmbassyOnArrest)
 		{
 			_spyArrested.Move(myEmbassyNode);
+			_spyArrested.SpyOutForTurns(GameManager.Instance.GetGameOptions().numTurnsArrested);
 		}
 		else
 		{

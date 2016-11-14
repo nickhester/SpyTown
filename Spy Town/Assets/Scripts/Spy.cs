@@ -12,6 +12,8 @@ public class Spy : Entity
 	public Color primaryTeamColor;
 	public Color secondaryTeamColor;
 
+	private int outForTurns = 0;
+
 	new void Awake()
 	{
 		base.Awake();
@@ -113,7 +115,11 @@ public class Spy : Entity
 	void OnPhaseStart(GameManager.RoundPhase _phase, GameManager.Team _team)
 	{
 		bool isMyTurn = _team == myTeam;
-		if (_phase == GameManager.RoundPhase.PLAYERTURN)
+		if (_phase == GameManager.RoundPhase.PLAYERTURN && isMyTurn && outForTurns > 0)
+		{
+			outForTurns--;
+		}
+		else if (_phase == GameManager.RoundPhase.PLAYERTURN)
 		{
 			ResetPosition();
 			ActivateEntity(isMyTurn);
@@ -170,6 +176,11 @@ public class Spy : Entity
 	public void Button_Arrest()
 	{
 		myEmbassy.ArrestSpy(this, null);
+	}
+
+	public void SpyOutForTurns(int numTurnsOut)
+	{
+		outForTurns = numTurnsOut;
 	}
 
 	public void ShowSpyCanvas(bool _b)

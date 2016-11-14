@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class GameOptions : MonoBehaviour
 {
@@ -8,8 +9,9 @@ public class GameOptions : MonoBehaviour
 	public int numActionsPerTurn = 3;
 	public int numSpiesRequiredToReachEmbassy = 1;
 	public int policeSightDistance = 1;
-	public bool policeReturnToEmbassyOnArrest = true;
+	public bool spyReturnToEmbassyOnArrest = true;
 	public bool requireOneArrestToWin = true;
+	public int numTurnsArrested = 2;
 
 	// game view settings
 	public bool viewModeBoardGame = true;	// in this mode, player 2 views everything "upside down" so the device can be handed back and forth directly
@@ -30,18 +32,23 @@ public class GameOptions : MonoBehaviour
 
 	// setters
 
-	public void Toggle_policeReturnToEmbassyOnArrest()
+	public void Toggle_spyReturnToEmbassyOnArrest(bool b)
 	{
-		policeReturnToEmbassyOnArrest = !policeReturnToEmbassyOnArrest;
+		spyReturnToEmbassyOnArrest = b;
 	}
 
-	public void Toggle_requireOneArrestToWin()
+	public void Toggle_requireOneArrestToWin(bool b)
 	{
-		requireOneArrestToWin = !requireOneArrestToWin;
+		requireOneArrestToWin = b;
 	}
 
-	public void Toggle_viewModeBoardGame()
+	public void Toggle_viewModeBoardGame(bool b)
 	{
-		viewModeBoardGame = !viewModeBoardGame;
+		viewModeBoardGame = b;
+	}
+
+	public void Slider_NumTurnsArrested(Single n)
+	{
+		numTurnsArrested = (int)n;
 	}
 }
